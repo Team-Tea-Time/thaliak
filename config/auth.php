@@ -69,11 +69,6 @@ return [
             'driver' => 'eloquent',
             'model' => Thaliak\User::class,
         ],
-
-        // 'users' => [
-        //     'driver' => 'database',
-        //     'table' => 'users',
-        // ],
     ],
 
     /*
@@ -98,5 +93,13 @@ return [
             'expire' => 60,
         ],
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Password Grant Client ID
+    |--------------------------------------------------------------------------
+    */
+
+    'password_grant_client_id' => 2,
 
 ];

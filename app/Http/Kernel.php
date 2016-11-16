@@ -51,6 +51,7 @@ class Kernel extends HttpKernel
         'bindings' => \Illuminate\Routing\Middleware\SubstituteBindings::class,
         'can' => \Illuminate\Auth\Middleware\Authorize::class,
         'guest' => \Thaliak\Http\Middleware\RedirectIfAuthenticated::class,
+        'password-grant' => \Thaliak\Http\Middleware\InjectPasswordGrantCredentials::class,
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
     ];
 }

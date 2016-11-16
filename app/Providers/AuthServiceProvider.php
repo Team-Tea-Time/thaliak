@@ -28,20 +28,23 @@ class AuthServiceProvider extends ServiceProvider
     {
         $this->registerPolicies();
 
+        // Passport routes and configuration
         Passport::routes();
         Passport::tokensExpireIn(Carbon::now()->addDays(7));
         Passport::refreshTokensExpireIn(Carbon::now()->addDays(14));
         Passport::pruneRevokedTokens();
 
-        // OAuth token proxy routes - these are used to append client
-        // credentials to Password Grant requests
-        Route::post(
-            'oauth/proxy/token',
-            'Thaliak\Http\Controllers\Oauth\ProxyController@getToken'
-        );
-        Route::post(
-            'oauth/proxy/token/refresh',
-            'Thaliak\Http\Controllers\Oauth\ProxyController@refreshToken'
-        );
+        // Override Passport's token issuing/refreshing routes to apply the
+        // InjectPasswordGrantCredentials middleware to them. This is to
+        // prevent the need for passing a client ID and secret from the frontend
+        // in the case of Password Grant requests.
+        Route::post('oauth/token', [
+            'middleware' => 'password-grant',
+            'uses' => '\Laravel\Passport\Http\Controllers\AccessTokenController@issueToken'
+        ]);
+        Route::post('oauth/token/refresh', [
+            'middleware' => ['web', 'auth', 'password-grant'],
+            'uses' => '\Laravel\Passport\Http\Controllers\TransientTokenController@refresh'
+        ]);
     }
 }

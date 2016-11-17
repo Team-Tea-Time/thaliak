@@ -36,7 +36,7 @@ class User extends Authenticatable
      */
     public function confirmation()
     {
-        return $this->belongsTo(UserConfirmation::class);
+        return $this->hasOne(UserConfirmation::class);
     }
 
     /**
@@ -62,6 +62,19 @@ class User extends Authenticatable
     }
 
     /**
+     * Find a user by confirmation code.
+     *
+     * @param  string  $code
+     * @return User
+     */
+    public static function findForConfirmation($code)
+    {
+        return static::whereHas('confirmation', function ($query) use ($code) {
+            $query->where('code', $code);
+        })->first();
+    }
+
+    /**
      * Find a user by identity for Passport requests.
      *
      * @param  string  $identity
@@ -74,5 +87,51 @@ class User extends Authenticatable
             : $this->where('name', $identity);
 
         return $builder->confirmed()->active()->first();
+    }
+
+    /**
+     * Activate the user (if applicable).
+     *
+     * @return User
+     */
+    public function activate()
+    {
+        if (!$this->active) {
+            $this->active = 1;
+            $this->save();
+        }
+
+        return $this;
+    }
+
+    /**
+     * Deactivate the user (if applicable).
+     *
+     * @return User
+     */
+    public function deactivate()
+    {
+        if ($this->active) {
+            $this->active = 0;
+            $this->save();
+        }
+
+        return $this;
+    }
+
+    /**
+     * Confirm the user and delete the confirmation (if applicable).
+     *
+     * @return User
+     */
+    public function confirm()
+    {
+        if (!$this->confirmed) {
+            $this->confirmation->delete();
+            $this->confirm = 1;
+            $this->save();
+        }
+
+        return $this;
     }
 }

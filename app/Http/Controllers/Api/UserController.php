@@ -2,11 +2,11 @@
 
 namespace Thaliak\Http\Controllers\Api;
 
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Thaliak\Http\Controllers\Controller;
+use Thaliak\Notifications\UserConfirmation as UserConfirmationNotification;
 use Thaliak\User;
 use Thaliak\UserConfirmation;
-use Thaliak\Http\Controllers\Controller;
 
 class UserController extends Controller
 {
@@ -46,6 +46,7 @@ class UserController extends Controller
             'password' => 'required|min:6|confirmed',
         ]);
 
+        // Create the user, along with a confirmation code
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
@@ -53,12 +54,28 @@ class UserController extends Controller
             'confirmed' => 0,
             'active' => 0
         ]);
+        $user->confirmation()->create(['code' => str_random(16)]);
 
-        UserConfirmation::create([
-            'user_id' => $user->id,
-            'code' => str_random(32)
-        ]);
+        // Send the user a notification with the code
+        $user->notify(new UserConfirmationNotification);
 
-        return new JsonResponse($user);
+        return $user;
+    }
+
+    /**
+     * Confirm a user account via the given confirmation code.
+     *
+     * @param  string  $code
+     * @return User
+     */
+    public function confirm($code)
+    {
+        $user = User::findForConfirmation($code);
+
+        if (!$user) {
+            abort(404, 'User not found.');
+        }
+
+        return $user->confirm()->activate();
     }
 }

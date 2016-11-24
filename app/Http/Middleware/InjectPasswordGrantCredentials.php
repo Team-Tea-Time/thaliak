@@ -19,7 +19,7 @@ class InjectPasswordGrantCredentials
     {
         if ($request->grant_type == 'password') {
             $client = DB::table('oauth_clients')
-                        ->where('id', config('auth.password_grant_client_id'))
+                        ->where('password_client', 1)
                         ->first();
 
             $request->request->add([

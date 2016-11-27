@@ -17,8 +17,8 @@ class UserController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('auth:api', ['except' => 'create']);
-        $this->middleware('guest', ['only' => 'create']);
+        $this->middleware('auth:api', ['except' => ['create', 'confirm']]);
+        $this->middleware('guest', ['only' => ['create', 'confirm']]);
     }
 
     /**
@@ -65,12 +65,12 @@ class UserController extends Controller
     /**
      * Confirm a user account via the given confirmation code.
      *
-     * @param  string  $code
+     * @param  Request  $request
      * @return User
      */
-    public function confirm($code)
+    public function confirm(Request $request)
     {
-        $user = User::findForConfirmation($code);
+        $user = User::findForConfirmation($request->code);
 
         if (!$user) {
             abort(404, 'User not found.');

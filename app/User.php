@@ -128,7 +128,7 @@ class User extends Authenticatable
     {
         if (!$this->confirmed) {
             $this->confirmation->delete();
-            $this->confirm = 1;
+            $this->confirmed = 1;
             $this->save();
         }
 

@@ -17,7 +17,7 @@ class UserController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('auth:api', ['except' => ['create', 'confirm']]);
+        $this->middleware('api-auth', ['except' => ['create', 'confirm']]);
         $this->middleware('guest', ['only' => ['create', 'confirm']]);
     }
 
@@ -29,7 +29,7 @@ class UserController extends Controller
      */
     public function get(Request $request)
     {
-        return $request->user;
+        return $request->user();
     }
 
     /**

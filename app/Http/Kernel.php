@@ -36,6 +36,11 @@ class Kernel extends HttpKernel
             'throttle:60,1',
             'bindings',
         ],
+
+        'api-auth' => [
+            'extract-token-from-cookie',
+            'auth:api'
+        ]
     ];
 
     /**
@@ -51,7 +56,25 @@ class Kernel extends HttpKernel
         'bindings' => \Illuminate\Routing\Middleware\SubstituteBindings::class,
         'can' => \Illuminate\Auth\Middleware\Authorize::class,
         'guest' => \Thaliak\Http\Middleware\RedirectIfAuthenticated::class,
-        'password-grant' => \Thaliak\Http\Middleware\InjectPasswordGrantCredentials::class,
+        'attach-token-cookie' => \Thaliak\Http\Middleware\AttachTokenCookie::class,
+        'extract-token-from-cookie' => \Thaliak\Http\Middleware\ExtractTokenFromCookie::class,
+        'handle-grant-injections' => \Thaliak\Http\Middleware\HandleGrantParameterInjections::class,
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
+    ];
+
+    /**
+     * The priority-sorted list of middleware.
+     *
+     * Forces the listed middleware to always be in the given order.
+     *
+     * @var array
+     */
+    protected $middlewarePriority = [
+        \Illuminate\Session\Middleware\StartSession::class,
+        \Illuminate\View\Middleware\ShareErrorsFromSession::class,
+        \Thaliak\Http\Middleware\ExtractTokenFromCookie::class,
+        \Illuminate\Auth\Middleware\Authenticate::class,
+        \Illuminate\Routing\Middleware\SubstituteBindings::class,
+        \Illuminate\Auth\Middleware\Authorize::class,
     ];
 }

@@ -30,20 +30,31 @@ class AuthServiceProvider extends ServiceProvider
 
         // Passport routes and configuration
         Passport::routes();
-        Passport::tokensExpireIn(Carbon::now()->addDays(7));
-        Passport::refreshTokensExpireIn(Carbon::now()->addDays(14));
+        Passport::tokensExpireIn(
+            Carbon::now()->addDays(
+                config('auth.passport.expiration.access_token')
+            )
+        );
+        Passport::refreshTokensExpireIn(
+            Carbon::now()->addDays(
+                config('auth.passport.expiration.refresh_token')
+            )
+        );
         Passport::pruneRevokedTokens();
 
         // Override Passport's token issuing/refreshing routes to apply the
-        // InjectPasswordGrantCredentials middleware to them. This is to
-        // prevent the need for passing a client ID and secret from the frontend
-        // in the case of Password Grant requests.
+        // following middleware to them:
+        // handle-grant-injections: injects the client secret into password and
+        // refresh_token grant type requests according to the supplied client
+        // ID.
+        // attach-token-cookie: attaches a cookie containing the oauth token to
+        // a successful response.
         Route::post('oauth/token', [
-            'middleware' => 'password-grant',
+            'middleware' => ['handle-grant-injections', 'attach-token-cookie'],
             'uses' => '\Laravel\Passport\Http\Controllers\AccessTokenController@issueToken'
         ]);
         Route::post('oauth/token/refresh', [
-            'middleware' => ['web', 'auth', 'password-grant'],
+            'middleware' => ['handle-grant-injections', 'attach-token-cookie'],
             'uses' => '\Laravel\Passport\Http\Controllers\TransientTokenController@refresh'
         ]);
     }

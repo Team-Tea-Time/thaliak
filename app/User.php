@@ -30,6 +30,16 @@ class User extends Authenticatable
     ];
 
     /**
+     * Relationship: Characters
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function characters()
+    {
+        return $this->hasMany(Character::class);
+    }
+
+    /**
      * Relationship: User Confirmation
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasOne

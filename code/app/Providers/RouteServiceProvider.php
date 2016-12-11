@@ -4,6 +4,7 @@ namespace Thaliak\Providers;
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
+use Thaliak\Models\Character;
 
 class RouteServiceProvider extends ServiceProvider
 {
@@ -15,6 +16,18 @@ class RouteServiceProvider extends ServiceProvider
      * @var string
      */
     protected $namespace = 'Thaliak\Http\Controllers';
+
+    /**
+     * Register any events for your application.
+     *
+     * @return void
+     */
+    public function boot()
+    {
+        parent::boot();
+
+        Route::model('character', Character::class);
+    }
 
     /**
      * Define the routes for the application.

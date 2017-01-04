@@ -1,8 +1,9 @@
-/node_modules
-/public/storage
-/storage/*.key
-/vendor
-/.idea
-Homestead.json
-Homestead.yaml
+/code/node_modules
+/code/public/storage
+/code/storage/*.key
+/code/vendor
+/code/.idea
+/code/Homestead.json
+/code/Homestead.yaml
+.DS_Store
 .env

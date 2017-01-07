@@ -1,40 +1,66 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img width="150"src="https://laravel.com/laravel.png"></a></p>
+PHPDocker.io generated environment
+==================================
 
-<p align="center">
-<a href="https://travis-ci.org/laravel/framework"><img src="https://travis-ci.org/laravel/framework.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://poser.pugx.org/laravel/framework/d/total.svg" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://poser.pugx.org/laravel/framework/v/stable.svg" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://poser.pugx.org/laravel/framework/license.svg" alt="License"></a>
-</p>
+#Add to your project#
 
-## About Laravel
+  * Unzip the file.
+  * Move the `phpdocker` folder into your project. You may rename this folder (see note below)
+  * Ensure the webserver config on `docker\nginx.conf` is correct for your project. PHPDocker.io generates it either for a typical Symfony project (`web/app|app_dev.php`) or generic (`public/index.php`).
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable, creative experience to be truly fulfilling. Laravel attempts to take the pain out of development by easing common tasks used in the majority of web projects, such as:
+Note: you may place the files elsewhere in your project. Make sure you modify the volume linking on `docker-compose.yml` for both the webserver and php-fpm so that the folder being shared into the container is the root of your project. Also, if you're using the vagrant machine, modify accordingly the line after the `#Bring up containers` comment.
+ 
+#How to run#
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+You have two options to run the environment, depending mainly on your host OS. Essentially, you can either run the containers on bare metal, or through a virtualised environment.
+ 
+##Linux##
 
-Laravel is accessible, yet powerful, providing tools needed for large, robust applications. A superb combination of simplicity, elegance, and innovation give you tools you need to build any application with which you are tasked.
+If you run Linux, you have both choices available to you. Running directly has certain advantages, not least of which the fact there's essentially zero overhead and full access to your system's muscle.
 
-## Learning Laravel
+The advantage of running through a virtualised environment is mainly having your whole environment neatly packed into a single set of files for the virtual machine.
 
-Laravel has the most extensive and thorough documentation and video tutorial library of any modern web application framework. The [Laravel documentation](https://laravel.com/docs) is thorough, complete, and makes it a breeze to get started learning the framework.
+The choice is up to you. If you'd rather run the containers directly:
 
-If you're not in the mood to read, [Laracasts](https://laracasts.com) contains over 900 video tutorials on a range of topics including Laravel, modern PHP, unit testing, JavaScript, and more. Boost the skill level of yourself and your entire team by digging into our comprehensive video library.
+  * Ensure you have the latest `docker engine` installed. Your distribution's package might be a little old, if you encounter problems, do upgrade. See https://docs.docker.com/engine/installation/
+  * Ensure you have the latest `docker-compose` installed. See [docs.docker.com/compose/install](https://docs.docker.com/compose/install/)
+  
+Once you're done, simply `cd` to the folder where you placed the files, then `docker-compose up -d`. This will initialise and start all the containers, then leave them running in the background.
+  
+##Other OS##
 
-## Contributing
+MacOS and Windows have no native support for docker containers. The way around this is to boot a minimal Linux virtual machine, then run the containers inside.
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](http://laravel.com/docs/contributions).
+Whichever way to do this is entirely up to you, but PHPDocker.io already has you covered provided you have a recent version of [vagrant](https://www.vagrantup.com/) and [virtualbox](https://www.virtualbox.org/) installed.
 
-## Security Vulnerabilities
+Simply `cd` to the folder where you placed the files, then `vagrant up`. This will fire up [boot2docker](http://boot2docker.io/), then initialise the containers within. You can `vagrant ssh` to act on the containers from then on.
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell at taylor@laravel.com. All security vulnerabilities will be promptly addressed.
+##Services exposed outside your environment##
 
-## License
+You can access your application via **`localhost`**, if you're running the containers directly, or through **`192.168.33.228`** when run on a vm. nginx and mailhog both respond to any hostname, in case you want to add your own hostname on your `/etc/hosts` 
 
-The Laravel framework is open-sourced software licensed under the [MIT license](http://opensource.org/licenses/MIT).
+Service|Address outside containers|Address outside VM
+------|---------|-----------
+Webserver|[localhost:9000](http://localhost:9000)|[192.168.33.228](http://192.168.33.228)
+
+##Hosts within your environment##
+
+You'll need to configure your application to use any services you enabled:
+
+Service|Hostname|Port number
+------|---------|-----------
+php-fpm|thaliak-php-fpm|9000
+MySQL|thaliak-mysql|3306 (default)
+Redis|thaliak-redis|6379 (default)
+
+#Docker compose cheatsheet#
+
+**Note 1:** you need to cd first to where your docker-compose.yml file lives
+
+**Note 2:** if you're using Vagrant, you'll need to ssh into it first
+
+  * Start containers in the background: `docker-compose up -d`
+  * Start containers on the foreground: `docker-compose up`. You will see a stream of logs for every container running.
+  * Stop containers: `docker-compose stop`
+  * Kill containers: `docker-compose kill`
+  * View container logs: `docker-compose logs`
+  * Execute command inside of container: `docker exec -it thaliak-php-fpm COMMAND` where `COMMAND` is whatever you want to run. For instance, `/bin/bash` to open a console prompt.

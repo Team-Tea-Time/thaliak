@@ -80,15 +80,9 @@ class CharacterController extends Controller
      */
     public function verify(Request $request)
     {
-        $character = Character::byVerification($request->code)->first();
+        $lodestone = $this->lodestone->getCharacter($request->character->id);
 
-        if (!$character) {
-            return response('Character not found.', 404);
-        }
-
-        $lodestoneCharacter = $this->lodestone->getCharacter($character->id);
-
-        if (!str_contains($lodestoneCharacter->introduction, $request->code)) {
+        if (!str_contains($lodestone->introduction, $request->code)) {
             return response(['code' => ['Verification failed. Please check the profile and try again.']], 422);
         }
 

@@ -17,7 +17,7 @@ Route::group([
         $r->get('/', 'CharacterController@index');
         $r->post('search', 'CharacterController@search');
         $r->post('/', 'CharacterController@add');
-        $r->post('verify', 'CharacterController@verify');
+        $r->post('{character}/verify', 'CharacterController@verify');
         $r->post('{character}/set-main', 'CharacterController@setMain');
         $r->delete('{character}', 'CharacterController@remove');
     });

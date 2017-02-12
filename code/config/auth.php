@@ -88,7 +88,7 @@ return [
     'providers' => [
         'users' => [
             'driver' => 'eloquent',
-            'model' => Thaliak\User::class,
+            'model' => Thaliak\Models\User::class,
         ],
     ],
 

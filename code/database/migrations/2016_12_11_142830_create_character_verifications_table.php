@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateUserConfirmationsTable extends Migration
+class CreateCharacterConfirmationsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,14 +13,13 @@ class CreateUserConfirmationsTable extends Migration
      */
     public function up()
     {
-        Schema::create('user_confirmations', function (Blueprint $table) {
+        Schema::create('character_verifications', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer('user_id')->unsigned();
+            $table->integer('character_id')->unsigned();
             $table->string('code');
-            $table->timestamps();
 
-            $table->foreign('user_id')
-                  ->references('id')->on('users')
+            $table->foreign('character_id')
+                  ->references('id')->on('characters')
                   ->onDelete('cascade');
         });
     }
@@ -32,6 +31,6 @@ class CreateUserConfirmationsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('user_confirmations');
+        Schema::dropIfExists('character_confirmations');
     }
 }

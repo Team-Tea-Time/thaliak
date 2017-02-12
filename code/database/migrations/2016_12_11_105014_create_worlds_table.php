@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateUsersTable extends Migration
+class CreateWorldsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,14 +13,14 @@ class CreateUsersTable extends Migration
      */
     public function up()
     {
-        Schema::create('users', function (Blueprint $table) {
+        Schema::create('worlds', function (Blueprint $table) {
             $table->increments('id');
+            $table->integer('data_centre_id')->unsigned();
             $table->string('name');
-            $table->string('email')->unique();
-            $table->string('password');
-            $table->boolean('verified');
-            $table->boolean('active');
-            $table->timestamps();
+
+            $table->foreign('data_centre_id')
+                  ->references('id')->on('data_centres')
+                  ->onDelete('cascade');
         });
     }
 
@@ -31,6 +31,6 @@ class CreateUsersTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('users');
+        Schema::dropIfExists('worlds');
     }
 }

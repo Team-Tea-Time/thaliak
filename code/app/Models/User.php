@@ -1,15 +1,16 @@
 <?php
 
-namespace Thaliak;
+namespace Thaliak\Models;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Passport\HasApiTokens;
+use Thaliak\Models\Traits\HasVerificationCodes;
 
 class User extends Authenticatable
 {
-    use HasApiTokens, Notifiable;
+    use HasApiTokens, HasVerificationCodes, Notifiable;
 
     /**
      * The attributes that are mass assignable.
@@ -17,7 +18,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'password', 'confirmed', 'active',
+        'name', 'email', 'password', 'verified', 'active',
     ];
 
     /**
@@ -40,27 +41,6 @@ class User extends Authenticatable
     }
 
     /**
-     * Relationship: User Confirmation
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasOne
-     */
-    public function confirmation()
-    {
-        return $this->hasOne(UserConfirmation::class);
-    }
-
-    /**
-     * Scope: Confirmed
-     *
-     * @param  $builder  Builder
-     * @return Builder
-     */
-    public function scopeConfirmed(Builder $builder)
-    {
-        return $builder->where('confirmed', 1);
-    }
-
-    /**
      * Scope: Active
      *
      * @param  $builder  Builder
@@ -69,19 +49,6 @@ class User extends Authenticatable
     public function scopeActive(Builder $builder)
     {
         return $builder->where('active', 1);
-    }
-
-    /**
-     * Find a user by confirmation code.
-     *
-     * @param  string  $code
-     * @return User
-     */
-    public static function findForConfirmation($code)
-    {
-        return static::whereHas('confirmation', function ($query) use ($code) {
-            $query->where('code', $code);
-        })->first();
     }
 
     /**
@@ -96,7 +63,7 @@ class User extends Authenticatable
             ? $this->where('email', $identity)
             : $this->where('name', $identity);
 
-        return $builder->confirmed()->active()->first();
+        return $builder->verified()->active()->first();
     }
 
     /**
@@ -123,22 +90,6 @@ class User extends Authenticatable
     {
         if ($this->active) {
             $this->active = 0;
-            $this->save();
-        }
-
-        return $this;
-    }
-
-    /**
-     * Confirm the user and delete the confirmation (if applicable).
-     *
-     * @return User
-     */
-    public function confirm()
-    {
-        if (!$this->confirmed) {
-            $this->confirmation->delete();
-            $this->confirmed = 1;
             $this->save();
         }
 

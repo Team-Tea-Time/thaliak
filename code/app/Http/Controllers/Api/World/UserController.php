@@ -25,6 +25,10 @@ class UserController extends Controller
      */
     public function characters(Request $request)
     {
-        return $request->user()->characters;
+        return $request
+            ->user()
+            ->characters()
+            ->world($request->route('world'))
+            ->get();
     }
 }

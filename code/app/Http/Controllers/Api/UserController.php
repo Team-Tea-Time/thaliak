@@ -4,9 +4,9 @@ namespace Thaliak\Http\Controllers\Api;
 
 use Illuminate\Http\Request;
 use Thaliak\Http\Controllers\Controller;
-use Thaliak\Notifications\UserConfirmation as UserConfirmationNotification;
-use Thaliak\User;
-use Thaliak\UserConfirmation;
+use Thaliak\Notifications\UserVerification as UserVerificationNotification;
+use Thaliak\Models\User;
+use Thaliak\Models\UserVerification;
 
 class UserController extends Controller
 {
@@ -17,8 +17,8 @@ class UserController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('api-auth', ['except' => ['create', 'confirm']]);
-        $this->middleware('guest', ['only' => ['create', 'confirm']]);
+        $this->middleware('api-auth', ['except' => ['create', 'verify']]);
+        $this->middleware('guest', ['only' => ['create', 'verify']]);
     }
 
     /**
@@ -46,36 +46,36 @@ class UserController extends Controller
             'password' => 'required|min:6|confirmed',
         ]);
 
-        // Create the user, along with a confirmation code
+        // Create the user, along with a verification code
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => bcrypt($request->password),
-            'confirmed' => 0,
+            'verified' => 0,
             'active' => 0
         ]);
-        $user->confirmation()->create(['code' => str_random(16)]);
+        $user->createVerificationCode();
 
         // Send the user a notification with the code
-        $user->notify(new UserConfirmationNotification);
+        $user->notify(new UserVerificationNotification);
 
-        return $user;
+        return $user->makeHidden('verification');
     }
 
     /**
-     * Confirm a user account via the given confirmation code.
+     * Verify a user account via the given verification code.
      *
      * @param  Request  $request
      * @return User
      */
-    public function confirm(Request $request)
+    public function verify(Request $request)
     {
-        $user = User::findForConfirmation($request->code);
+        $user = User::byVerification($request->code)->first();
 
         if (!$user) {
             abort(404, 'User not found.');
         }
 
-        return $user->confirm()->activate();
+        return $user->verify()->activate();
     }
 }

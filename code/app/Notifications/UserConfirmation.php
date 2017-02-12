@@ -8,7 +8,7 @@ use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 use Thaliak\User;
 
-class UserConfirmation extends Notification
+class UserVerification extends Notification
 {
     use Queueable;
 
@@ -33,8 +33,8 @@ class UserConfirmation extends Notification
     {
         return (new MailMessage)
                     ->line('Someone (hopefully you!) created an eorzea.info account using this email address.')
-                    ->line('If this was you, follow the link below to confirm your email address.')
-                    ->action('Confirm Email', url("user/confirm/{$notifiable->confirmation->code}"));
+                    ->line('If this was you, follow the link below to verify your email address.')
+                    ->action('Verify Email', url("user/verify/{$notifiable->verification->code}"));
     }
 
     /**

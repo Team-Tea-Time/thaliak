@@ -5,5 +5,6 @@
 /code/.idea
 /code/Homestead.json
 /code/Homestead.yaml
+/.vagrant
 .DS_Store
 .env

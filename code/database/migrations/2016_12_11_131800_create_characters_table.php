@@ -20,8 +20,6 @@ class CreateCharactersTable extends Migration
             $table->boolean('verified');
             $table->string('name');
             $table->string('gender')->nullable();
-            $table->string('avatar')->nullable();
-            $table->string('portrait')->nullable();
             $table->string('race')->nullable();
             $table->string('clan')->nullable();
             $table->string('nameday')->nullable();

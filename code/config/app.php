@@ -178,14 +178,12 @@ return [
          * Package Service Providers...
          */
         Laravel\Passport\PassportServiceProvider::class,
-        Sichikawa\LaravelSendgridDriver\SendgridTransportServiceProvider::class,
 
         /*
          * Application Service Providers...
          */
         Thaliak\Providers\AppServiceProvider::class,
         Thaliak\Providers\AuthServiceProvider::class,
-        // Thaliak\Providers\BroadcastServiceProvider::class,
         Thaliak\Providers\EventServiceProvider::class,
         Thaliak\Providers\RouteServiceProvider::class,
 

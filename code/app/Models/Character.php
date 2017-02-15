@@ -3,13 +3,15 @@
 namespace Thaliak\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Spatie\MediaLibrary\HasMedia\HasMediaTrait;
+use Spatie\MediaLibrary\HasMedia\Interfaces\HasMedia;
 use Thaliak\Http\Lodestone\Character as LodestoneCharacter;
 use Thaliak\Models\Enum\CharacterStatus;
 use Thaliak\Models\Traits\HasVerificationCodes;
 
-class Character extends Model
+class Character extends Model implements HasMedia
 {
-    use HasVerificationCodes;
+    use HasMediaTrait, HasVerificationCodes;
 
     /**
      * Indicates if the IDs are auto-incrementing.
@@ -30,7 +32,14 @@ class Character extends Model
      *
      * @var array
      */
-    protected $with = ['world', 'verification'];
+    protected $with = ['world', 'verification', 'media'];
+
+    /**
+     * The accessors to append to the model's array form.
+     *
+     * @var array
+     */
+    protected $appends = ['avatar', 'portrait'];
 
     /**
      * Relationship: User
@@ -50,6 +59,26 @@ class Character extends Model
     public function world()
     {
         return $this->belongsTo(World::class);
+    }
+
+    /**
+     * Accessor: avatar URL
+     *
+     * @return string
+     */
+    public function getAvatarAttribute()
+    {
+        return $this->media->where('name', 'avatar')->first()->getUrl();
+    }
+
+    /**
+     * Accessor: portrait URL
+     *
+     * @return string
+     */
+    public function getPortraitAttribute()
+    {
+        return $this->media->where('name', 'portrait')->first()->getUrl();
     }
 
     /**
@@ -83,8 +112,6 @@ class Character extends Model
             'verified'      => false,
             'name'          => $character->name,
             'gender'        => $character->gender,
-            'avatar'        => $character->avatar,
-            'portrait'      => $character->portrait,
             'race'          => $character->race,
             'clan'          => $character->clan,
             'nameday'       => $character->nameday,

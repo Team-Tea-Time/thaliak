@@ -3,6 +3,7 @@
 namespace Thaliak\Http\Controllers\Api\World;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Thaliak\Http\Controllers\Controller;
 use Thaliak\Http\Lodestone\Api;
 use Thaliak\Models\Character;
@@ -56,18 +57,28 @@ class CharacterController extends Controller
             ['id.unique' => 'This character has already been added.']
         );
 
-        $lodestoneCharacter = $this->lodestone->getCharacter($request->id);
+        $lodestone = $this->lodestone->getCharacter($request->id);
 
-        if (!$lodestoneCharacter) {
+        if (!$lodestone) {
             return response(['id' => 'Character not found.'], 422);
         }
 
         $character = Character::createFromLodestone(
-            $lodestoneCharacter,
+            $lodestone,
             $request->user(),
             $request->route('world')
         );
         $character->createVerificationCode();
+
+        $character
+            ->addMediaFromUrl($lodestone->avatar)
+            ->usingName('avatar')
+            ->toMediaLibrary('images');
+
+        $character
+            ->addMediaFromUrl($lodestone->portrait)
+            ->usingName('portrait')
+            ->toMediaLibrary('images');
 
         return $character->load('verification');
     }

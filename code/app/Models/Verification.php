@@ -4,7 +4,7 @@ namespace Thaliak\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class UserVerification extends Model
+class Verification extends Model
 {
     /**
      * Indicates if the model should be timestamped.
@@ -19,14 +19,16 @@ class UserVerification extends Model
      * @var array
      */
     protected $fillable = [
-        'user_id', 'code',
+        'model_type', 'model_id', 'code',
     ];
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     * Relationship: verifiable model
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\MorphTo
      */
-    public function user()
+    public function model()
     {
-        return $this->hasOne(User::class);
+        return $this->morphTo();
     }
 }

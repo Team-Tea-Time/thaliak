@@ -3,18 +3,31 @@
 namespace Thaliak\Models\Traits;
 
 use Illuminate\Database\Eloquent\Builder;
+use Thaliak\Models\Verification;
 
 trait HasVerificationCodes
 {
     /**
+     * Delete the model from the database.
+     *
+     * @return bool|null
+     *
+     * @throws \Exception
+     */
+    public function delete()
+    {
+        $this->verification->delete();
+        return parent::delete();
+    }
+
+    /**
      * Relationship: Verification
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     * @return \Illuminate\Database\Eloquent\Relations\MorphOne
      */
     public function verification()
     {
-        $class = get_class($this);
-        return $this->hasOne("{$class}Verification");
+        return $this->morphOne(Verification::class, 'model');
     }
 
     /**

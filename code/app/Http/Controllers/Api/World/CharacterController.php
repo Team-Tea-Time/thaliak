@@ -97,7 +97,7 @@ class CharacterController extends Controller
             return response(['code' => ['Verification failed. Please check the profile and try again.']], 422);
         }
 
-        return $character->verify();
+        return $request->character->verify();
     }
 
     /**

@@ -29,6 +29,17 @@ class CharacterController extends Controller
     }
 
     /**
+     * Return a paginated, filterable list of characters.
+     *
+     * @param  Request  $request
+     * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
+     */
+    public function index(Request $request)
+    {
+        return Character::paginate(2);
+    }
+
+    /**
      * Search for characters on Lodestone by name.
      *
      * @param  Request  $request

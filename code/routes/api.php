@@ -13,7 +13,7 @@ Route::group([
     });
 
     // Characters
-    $r->group(['prefix' => 'character'], function (Router $r) {
+    $r->group(['prefix' => 'characters'], function (Router $r) {
         $r->get('/', 'CharacterController@index');
         $r->post('search', 'CharacterController@search');
         $r->post('/', 'CharacterController@add');

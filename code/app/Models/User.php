@@ -31,6 +31,20 @@ class User extends Authenticatable
     ];
 
     /**
+     * The relations to eager load on every query.
+     *
+     * @var array
+     */
+    protected $with = ['roles'];
+
+    /**
+     * The accessors to append to the model's array form.
+     *
+     * @var array
+     */
+    protected $appends = ['role_list'];
+
+    /**
      * Relationship: Characters
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
@@ -38,6 +52,16 @@ class User extends Authenticatable
     public function characters()
     {
         return $this->hasMany(Character::class);
+    }
+
+    /**
+     * Relationship: roles
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function roles()
+    {
+        return $this->belongsToMany(Role::class)->withTimestamps();
     }
 
     /**
@@ -49,6 +73,16 @@ class User extends Authenticatable
     public function scopeActive(Builder $builder)
     {
         return $builder->where('active', 1);
+    }
+
+    /**
+     * Attribute: role list
+     *
+     * @return string
+     */
+    public function getRoleListAttribute()
+    {
+        return implode(', ', $this->roles()->pluck('name')->toArray());
     }
 
     /**
@@ -94,5 +128,28 @@ class User extends Authenticatable
         }
 
         return $this;
+    }
+
+    /**
+     * Determine if the user has a given role (or one of multiple given roles)
+     *
+     * @param  string|array  $role
+     * @return bool
+     */
+    public function hasRole($role)
+    {
+        if (is_array($role)) {
+            foreach ($role as $r) {
+                if ($this->hasRole($r)) return true;
+            }
+
+            return false;
+        }
+
+        foreach ($this->roles as $r) {
+            if ($r->name == $role) return true;
+        }
+
+        return false;
     }
 }

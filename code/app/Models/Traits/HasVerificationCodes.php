@@ -16,7 +16,10 @@ trait HasVerificationCodes
      */
     public function delete()
     {
-        $this->verification->delete();
+        if ($this->verification) {
+            $this->verification->delete();
+        }
+
         return parent::delete();
     }
 

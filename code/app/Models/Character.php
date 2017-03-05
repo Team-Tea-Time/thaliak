@@ -32,14 +32,21 @@ class Character extends Model implements HasMedia
      *
      * @var array
      */
-    protected $with = ['world', 'verification', 'media'];
+    protected $with = ['world', 'media'];
 
     /**
      * The accessors to append to the model's array form.
      *
      * @var array
      */
-    protected $appends = ['avatar', 'portrait'];
+    protected $appends = ['user_name', 'avatar', 'portrait'];
+
+    /**
+     * The attributes that should be hidden for arrays.
+     *
+     * @var array
+     */
+    protected $hidden = ['user'];
 
     /**
      * Relationship: User
@@ -59,6 +66,16 @@ class Character extends Model implements HasMedia
     public function world()
     {
         return $this->belongsTo(World::class);
+    }
+
+    /**
+     * Accessor: user name
+     *
+     * @return string
+     */
+    public function getUserNameAttribute()
+    {
+        return $this->user->name;
     }
 
     /**

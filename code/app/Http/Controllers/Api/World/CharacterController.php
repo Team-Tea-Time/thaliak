@@ -29,14 +29,25 @@ class CharacterController extends Controller
     }
 
     /**
-     * Return a paginated, filterable list of characters.
+     * Return an index of characters.
      *
      * @param  Request  $request
      * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
      */
     public function index(Request $request)
     {
-        return Character::paginate(2);
+        return Character::paginate();
+    }
+
+    /**
+     * Return a specified character.
+     *
+     * @param  Request  $request
+     * @return Character
+     */
+    public function get(Request $request)
+    {
+        return $request->character;
     }
 
     /**
@@ -120,6 +131,27 @@ class CharacterController extends Controller
     public function setMain(Request $request)
     {
         return $request->character->setMain();
+    }
+
+    /**
+     * Update a character.
+     *
+     * @param  Request  $request
+     * @return Character
+     */
+    public function update(Request $request)
+    {
+        $this->validate($request, [
+            'verified' => 'boolean',
+            'user_id' => 'sometimes|exists:users,id'
+        ]);
+
+        $request->character->update([
+            'verified' => $request->verified,
+            'user_id' => $request->user_id ? $request->user_id : $request->character->user_id
+        ]);
+
+        return $request->character->fresh();
     }
 
     /**

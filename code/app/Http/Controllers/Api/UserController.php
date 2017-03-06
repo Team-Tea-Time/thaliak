@@ -2,6 +2,7 @@
 
 namespace Thaliak\Http\Controllers\Api;
 
+use Cookie;
 use Illuminate\Http\Request;
 use Thaliak\Http\Controllers\Controller;
 use Thaliak\Notifications\UserVerification as UserVerificationNotification;
@@ -77,5 +78,17 @@ class UserController extends Controller
         }
 
         return $user->verify()->activate();
+    }
+
+    /**
+     * Clear the current user's auth token.
+     *
+     * @param  Request  $request
+     * @return null
+     */
+    public function clearToken(Request $request)
+    {
+        Cookie::forget('auth');
+        $request->user()->token()->revoke();
     }
 }

@@ -38,6 +38,7 @@ Route::group(['prefix' => 'user'], function (Router $r) {
     $r->get('/', 'UserController@get');
     $r->post('/', 'UserController@create');
     $r->post('verify', 'UserController@verify');
+    $r->post('clear-token', 'UserController@clearToken');
 });
 
 // Parameter bindings

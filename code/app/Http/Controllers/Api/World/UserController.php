@@ -30,6 +30,19 @@ class UserController extends Controller
     }
 
     /**
+     * Return user totals.
+     *
+     * @return array
+     */
+    public function totals()
+    {
+        return [
+            'total' => User::count(),
+            'unverified' => User::unverified()->count()
+        ];
+    }
+
+    /**
      * Search for users by name.
      *
      * @param  Request  $request

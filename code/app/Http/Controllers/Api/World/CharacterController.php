@@ -40,6 +40,19 @@ class CharacterController extends Controller
     }
 
     /**
+     * Return character totals.
+     *
+     * @return array
+     */
+    public function totals()
+    {
+        return [
+            'total' => Character::count(),
+            'unverified' => Character::unverified()->count()
+        ];
+    }
+
+    /**
      * Return a specified character.
      *
      * @param  Request  $request

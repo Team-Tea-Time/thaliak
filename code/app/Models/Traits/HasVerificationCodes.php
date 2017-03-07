@@ -45,6 +45,17 @@ trait HasVerificationCodes
     }
 
     /**
+     * Scope: Unverified
+     *
+     * @param  Builder  $query
+     * @return Builder
+     */
+    public function scopeUnverified(Builder $builder)
+    {
+        return $builder->where('verified', 0);
+    }
+
+    /**
      * Scope: Verification
      *
      * @param  Builder  $query

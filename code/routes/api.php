@@ -38,8 +38,3 @@ Route::group(['prefix' => 'user'], function (Router $r) {
     $r->post('verify', 'UserController@verify');
     $r->post('clear-token', 'UserController@clearToken');
 });
-
-// Parameter bindings
-Route::bind('world', function ($world) {
-    return \Thaliak\Models\World::whereName(ucfirst($world))->first();
-});

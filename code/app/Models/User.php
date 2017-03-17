@@ -35,7 +35,7 @@ class User extends Authenticatable
      *
      * @var array
      */
-    protected $with = ['roles'];
+    protected $with = ['auths', 'roles'];
 
     /**
      * The accessors to append to the model's array form.
@@ -43,6 +43,16 @@ class User extends Authenticatable
      * @var array
      */
     protected $appends = ['role_list'];
+
+    /**
+     * Relationship: OAuth authentications.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function auths()
+    {
+        return $this->hasMany(OAuthUser::class);
+    }
 
     /**
      * Relationship: Characters
@@ -67,12 +77,26 @@ class User extends Authenticatable
     /**
      * Scope: Active
      *
-     * @param  $builder  Builder
+     * @param  Builder  $builder
      * @return Builder
      */
     public function scopeActive(Builder $builder)
     {
         return $builder->where('active', 1);
+    }
+
+    /**
+     * Scope: Auth
+     *
+     * @param  Builder  $builder
+     * @param  int  $authId
+     * @return Builder
+     */
+    public function scopeForAuth(Builder $builder, $authId)
+    {
+        return $builder->whereHas('auths', function ($query) use ($authId) {
+            $query->where('provider_user_id', $authId);
+        });
     }
 
     /**

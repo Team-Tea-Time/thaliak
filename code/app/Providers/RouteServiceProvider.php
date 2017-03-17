@@ -4,6 +4,7 @@ namespace Thaliak\Providers;
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
+use Socialite;
 use Thaliak\Models\Character;
 use Thaliak\Models\User;
 use Thaliak\Models\World;

@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use Thaliak\Http\Controllers\Controller;
 use Thaliak\Models\User;
 
-class UserController extends Controller
+class UsersController extends Controller
 {
     /**
      * Create a new controller instance.
@@ -94,7 +94,7 @@ class UserController extends Controller
     public function characters(Request $request)
     {
         return $request
-            ->user()
+            ->user
             ->characters()
             ->with('verification')
             ->world($request->route('world'))

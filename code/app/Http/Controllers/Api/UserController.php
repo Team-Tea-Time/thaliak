@@ -8,6 +8,7 @@ use Thaliak\Http\Controllers\Controller;
 use Thaliak\Notifications\UserVerification as UserVerificationNotification;
 use Thaliak\Models\User;
 use Thaliak\Models\UserVerification;
+use Thaliak\Support\User as UserSupport;
 
 class UserController extends Controller
 {
@@ -47,18 +48,9 @@ class UserController extends Controller
             'password' => 'required|min:6|confirmed',
         ]);
 
-        // Create the user, along with a verification code
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => bcrypt($request->password),
-            'verified' => 0,
-            'active' => 0
-        ]);
-        $user->createVerificationCode();
-
-        // Send the user a notification with the code
-        $user->notify(new UserVerificationNotification);
+        $user = UserSupport::create(
+            $request->only(['name', 'email', 'password'])
+        );
 
         return $user->makeHidden('verification');
     }

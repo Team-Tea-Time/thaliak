@@ -12,7 +12,8 @@
         "webpatser/laravel-uuid": "^2.0",
         "fabpot/goutte": "^3.2",
         "league/flysystem-aws-s3-v3": "^1.0",
-        "spatie/laravel-medialibrary": "^5.0"
+        "spatie/laravel-medialibrary": "^5.0",
+        "laravel/socialite": "^3.0"
     },
     "require-dev": {
         "fzaninotto/faker": "~1.4",

@@ -40,7 +40,6 @@ class AuthServiceProvider extends ServiceProvider
                 config('auth.passport.expiration.refresh_token')
             )
         );
-        Passport::pruneRevokedTokens();
 
         // Override Passport's token issuing/refreshing routes to apply the
         // following middleware to them:

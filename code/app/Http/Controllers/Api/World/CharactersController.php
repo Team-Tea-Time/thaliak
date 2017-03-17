@@ -9,7 +9,7 @@ use Thaliak\Http\Lodestone\Api;
 use Thaliak\Models\Character;
 use Thaliak\Models\World;
 
-class CharacterController extends Controller
+class CharactersController extends Controller
 {
     /**
      * @var Api

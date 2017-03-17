@@ -8,27 +8,34 @@ Route::group([
     'namespace' => 'World'
 ], function (Router $r) {
     // Users
-    $r->group(['prefix' => 'user'], function (Router $r) {
-        $r->get('/', 'UserController@index');
-        $r->get('totals', 'UserController@totals');
-        $r->post('search', 'UserController@search');
-        $r->patch('{user}', 'UserController@update');
-        $r->delete('{user}', 'UserController@delete');
-        $r->get('characters', 'UserController@characters');
+    $r->group(['prefix' => 'users'], function (Router $r) {
+        $r->get('/', 'UsersController@index');
+        $r->get('totals', 'UsersController@totals');
+        $r->post('search', 'UsersController@search');
+        $r->patch('{user}', 'UsersController@update');
+        $r->delete('{user}', 'UsersController@delete');
+        $r->get('{user}/characters', 'UsersController@characters');
     });
 
     // Characters
-    $r->group(['prefix' => 'character'], function (Router $r) {
-        $r->get('/', 'CharacterController@index');
-        $r->get('totals', 'CharacterController@totals');
-        $r->get('{character}', 'CharacterController@get');
-        $r->post('search', 'CharacterController@search');
-        $r->post('/', 'CharacterController@add');
-        $r->post('{character}/verify', 'CharacterController@verify');
-        $r->post('{character}/set-main', 'CharacterController@setMain');
-        $r->patch('{character}', 'CharacterController@update');
-        $r->delete('{character}', 'CharacterController@remove');
+    $r->group(['prefix' => 'characters'], function (Router $r) {
+        $r->get('/', 'CharactersController@index');
+        $r->get('totals', 'CharactersController@totals');
+        $r->get('{character}', 'CharactersController@get');
+        $r->post('search', 'CharactersController@search');
+        $r->post('/', 'CharactersController@add');
+        $r->post('{character}/verify', 'CharactersController@verify');
+        $r->post('{character}/set-main', 'CharactersController@setMain');
+        $r->patch('{character}', 'CharactersController@update');
+        $r->delete('{character}', 'CharactersController@remove');
     });
+});
+
+// Social auth
+Route::get('social/drivers', 'SocialAuthController@drivers');
+Route::group(['prefix' => 'social/{provider}/auth'], function (Router $r) {
+    $r->get('/', 'SocialAuthController@redirect');
+    $r->get('receive', 'SocialAuthController@receive');
 });
 
 // Current user

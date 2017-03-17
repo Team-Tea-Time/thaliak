@@ -1,6 +1,6 @@
 <?php
 
-namespace Thaliak\Http\Controllers\Auth;
+namespace Thaliak\Http\Controllers\Api;
 
 use Thaliak\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\SendsPasswordResetEmails;

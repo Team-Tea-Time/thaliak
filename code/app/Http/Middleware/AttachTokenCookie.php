@@ -3,30 +3,26 @@
 namespace Thaliak\Http\Middleware;
 
 use Closure;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Encryption\Encrypter;
-use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Response;
+use Thaliak\Support\Auth;
 
 class AttachTokenCookie
 {
     /**
-     * The encrypter implementation.
-     *
-     * @var \Illuminate\Encryption\Encrypter
+     * @var Auth
      */
-    protected $encrypter;
+    protected $auth;
 
     /**
      * Create a new middleware instance.
      *
-     * @param  \Illuminate\Encryption\Encrypter  $encrypter
+     * @param  Auth  $auth
      * @return void
      */
-    public function __construct(Encrypter $encrypter)
+    public function __construct(Auth $auth)
     {
-        $this->encrypter = $encrypter;
+        $this->auth = $auth;
     }
 
     /**
@@ -56,25 +52,7 @@ class AttachTokenCookie
     protected function make(Response $response)
     {
         $token = json_decode($response->getContent(), true);
-
-        $config = config('session');
-
-        $expiration = Carbon::now()->addMinutes($token['expires_in']);
-
-        $payload = [
-            'access_token' => $token['access_token'],
-            'refresh_token' => $token['refresh_token'],
-        ];
-
-        return new Cookie(
-            $config['cookie'],
-            $this->encrypter->encrypt($payload),
-            $expiration,
-            $config['path'],
-            $config['domain'],
-            $config['secure'],
-            $config['http_only']
-        );
+        return $this->auth->createCookieForToken($token);
     }
 
     /**

@@ -107,7 +107,7 @@ class SocialAuthController extends Controller
         if (!$state['user_is_new'] && $user->active && $user->verified) {
             $response->headers->setCookie(
                 $this->auth->createCookieForToken([
-                    'access_token' => $user->createToken("{$this->driver->name} access token")->accessToken
+                    'access_token' => $user->createToken("{$this->driver->capitalised_name} login")->accessToken
                 ])
             );
         }

@@ -7,6 +7,7 @@ use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvi
 use Laravel\Passport\Passport;
 use Socialite;
 use Thaliak\Models\Character;
+use Thaliak\Models\OAuthUser;
 use Thaliak\Models\User;
 use Thaliak\Models\World;
 
@@ -23,6 +24,7 @@ class RouteServiceProvider extends ServiceProvider
 
         Route::model('user', User::class);
         Route::model('character', Character::class);
+        Route::model('auth', OAuthUser::class);
         Route::bind('world', function ($world) {
             return World::whereName(ucfirst($world))->first();
         });

@@ -32,7 +32,7 @@ class UserVerification extends Notification
     public function toMail($notifiable)
     {
         return (new MailMessage)
-                    ->line('Someone (hopefully you!) created an eorzea.info account using this email address.')
+                    ->line('Someone (hopefully you!) used this email address for an xiv.world account.')
                     ->line('If this was you, follow the link below to verify your email address.')
                     ->action('Verify Email', url("user/verify/{$notifiable->verification->code}"));
     }

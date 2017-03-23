@@ -116,6 +116,18 @@ class SocialAuthController extends Controller
     }
 
     /**
+     * Delete an auth instance.
+     *
+     * @param  Request  $request
+     * @return OAuthUser
+     */
+    public function delete(Request $request)
+    {
+        $request->auth->delete();
+        return $request->auth;
+    }
+
+    /**
      * Return a driver instance for the given provider.
      *
      * @param  string  $provider

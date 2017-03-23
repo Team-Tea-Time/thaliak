@@ -26,12 +26,22 @@ class User
             'verified' => 0,
             'active' => 0
         ]);
-        $user->createVerificationCode();
 
-        // Send the user a notification with the code
-        $user->notify(new UserVerificationNotification);
+        static::createVerificationCode($user);
 
         return $user;
+    }
+
+    /**
+     * Create a verification for and notify the given user.
+     *
+     * @param  User  $user
+     * @return void
+     */
+    public static function createVerificationCode(UserModel $user)
+    {
+        $user->createVerificationCode();
+        $user->notify(new UserVerificationNotification);
     }
 
     /**

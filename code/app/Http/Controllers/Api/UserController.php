@@ -4,6 +4,7 @@ namespace Thaliak\Http\Controllers\Api;
 
 use Cookie;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 use Thaliak\Http\Controllers\Controller;
 use Thaliak\Notifications\UserVerification as UserVerificationNotification;
 use Thaliak\Models\User;
@@ -70,6 +71,45 @@ class UserController extends Controller
         }
 
         return $user->verify()->activate();
+    }
+
+    /**
+     * Update the current user.
+     *
+     * @param  Request  $request
+     * @return User
+     */
+    public function update(Request $request)
+    {
+        $this->validate($request, ['password' => 'min:6|confirmed']);
+
+        if (!Hash::check($request->current_password, $request->user()->password)) {
+            return response([
+                'current_password' => ["Doesn't match current password"]
+            ], 422);
+        }
+
+        $user = $request->user();
+
+        if ($request->name && $request->name != $request->user()->name) {
+            $this->validate($request, ['name' => 'max:255|unique:users']);
+            $user->name = $request->name;
+        }
+
+        if ($request->email && $request->email != $request->user()->email) {
+            $this->validate($request, ['email' => 'email|max:255|unique:users']);
+            $user->email = $request->email;
+            $user->verified = false;
+            UserSupport::createVerificationCode($user);
+        }
+
+        if ($request->password) {
+            $user->password = Hash::make($request->password);
+        }
+
+        $user->save();
+
+        return $user;
     }
 
     /**

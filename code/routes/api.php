@@ -29,7 +29,7 @@ Route::group(['namespace' => 'Thaliak\Http\Controllers\Api'], function (Router $
             $r->post('{character}/verify', 'CharactersController@verify');
             $r->post('{character}/set-main', 'CharactersController@setMain');
             $r->patch('{character}', 'CharactersController@update');
-            $r->delete('{character}', 'CharactersController@remove');
+            $r->delete('{character}', 'CharactersController@delete');
         });
     });
 
@@ -38,6 +38,7 @@ Route::group(['namespace' => 'Thaliak\Http\Controllers\Api'], function (Router $
     $r->group(['prefix' => 'social/{provider}/auth'], function (Router $r) {
         $r->get('/', 'SocialAuthController@redirect');
         $r->get('receive', 'SocialAuthController@receive');
+        $r->delete('{auth}', 'SocialAuthController@delete');
     });
 
     // Current user
@@ -45,6 +46,7 @@ Route::group(['namespace' => 'Thaliak\Http\Controllers\Api'], function (Router $
         $r->get('me', 'UserController@get');
         $r->post('/', 'UserController@create');
         $r->post('verify', 'UserController@verify');
+        $r->patch('/', 'UserController@update');
         $r->post('clear-token', 'UserController@clearToken');
     });
 });

@@ -168,12 +168,12 @@ class CharactersController extends Controller
     }
 
     /**
-     * Remove a character.
+     * Delete a character.
      *
      * @param  Request  $request
      * @return Character
      */
-    public function remove(Request $request)
+    public function delete(Request $request)
     {
         $request->character->delete();
         return $request->character;

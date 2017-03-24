@@ -62,7 +62,7 @@ return [
     |
     */
 
-    'url' => env('APP_URL', 'http://localhost'),
+    'url' => env('APP_URL', 'http://balmung.xiv-local.world'),
 
     /*
     |--------------------------------------------------------------------------
@@ -177,8 +177,10 @@ return [
         /*
          * Package Service Providers...
          */
+        Cocur\Slugify\Bridge\Laravel\SlugifyServiceProvider::class,
         Laravel\Passport\PassportServiceProvider::class,
         Laravel\Socialite\SocialiteServiceProvider::class,
+        Laravel\Tinker\TinkerServiceProvider::class,
         Spatie\MediaLibrary\MediaLibraryServiceProvider::class,
 
         /*
@@ -232,6 +234,7 @@ return [
         'Route' => Illuminate\Support\Facades\Route::class,
         'Schema' => Illuminate\Support\Facades\Schema::class,
         'Session' => Illuminate\Support\Facades\Session::class,
+        'Slugify' => Cocur\Slugify\Bridge\Laravel\SlugifyFacade::class,
         'Socialite' => Laravel\Socialite\Facades\Socialite::class,
         'Storage' => Illuminate\Support\Facades\Storage::class,
         'URL' => Illuminate\Support\Facades\URL::class,

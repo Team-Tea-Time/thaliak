@@ -40,6 +40,11 @@ Route::group(['namespace' => 'Thaliak\Http\Controllers\Api'], function (Router $
                 $r->post('set-main', 'CharactersController@setMain');
                 $r->patch('/', 'CharactersController@update');
                 $r->delete('/', 'CharactersController@delete');
+
+                $r->group(['prefix' => 'profile'], function (Router $r) {
+                    $r->post('/', 'CharacterProfilesController@save');
+                    $r->delete('portrait', 'CharacterProfilesController@deletePortrait');
+                });
             });
         });
     });

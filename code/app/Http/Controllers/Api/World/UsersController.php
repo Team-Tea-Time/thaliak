@@ -113,7 +113,7 @@ class UsersController extends Controller
         return $request
             ->user
             ->characters()
-            ->with('verification')
+            ->with('verification', 'profile')
             ->world($request->route('world'))
             ->get();
     }

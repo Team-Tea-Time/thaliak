@@ -24,7 +24,7 @@ class CharactersController extends Controller
      */
     public function __construct(Api $lodestone)
     {
-        $this->middleware('api-auth');
+        $this->middleware('api-auth', ['except' => ['index', 'get', 'searc']]);
         $this->lodestone = $lodestone;
     }
 

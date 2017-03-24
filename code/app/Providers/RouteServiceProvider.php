@@ -22,8 +22,11 @@ class RouteServiceProvider extends ServiceProvider
     {
         parent::boot();
 
-        Route::model('character', Character::class);
         Route::model('auth', OAuthUser::class);
+
+        Route::bind('character', function ($id) {
+            return Character::with('profile')->findOrFail($id);
+        });
 
         Route::bind('user', function ($user) {
             if ($user === 'me') {

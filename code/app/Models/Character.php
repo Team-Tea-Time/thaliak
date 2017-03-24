@@ -3,6 +3,7 @@
 namespace Thaliak\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Slugify;
 use Spatie\MediaLibrary\HasMedia\HasMediaTrait;
 use Spatie\MediaLibrary\HasMedia\Interfaces\HasMedia;
 use Thaliak\Http\Lodestone\Character as LodestoneCharacter;
@@ -39,7 +40,7 @@ class Character extends Model implements HasMedia
      *
      * @var array
      */
-    protected $appends = ['user_name', 'avatar', 'portrait'];
+    protected $appends = ['slug', 'user_name', 'avatar', 'portrait'];
 
     /**
      * The attributes that should be hidden for arrays.
@@ -69,7 +70,27 @@ class Character extends Model implements HasMedia
     }
 
     /**
-     * Accessor: user name
+     * Relationship: Profile
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
+    public function profile()
+    {
+        return $this->hasOne(CharacterProfile::class);
+    }
+
+    /**
+     * Attribute: slug
+     *
+     * @return string
+     */
+    public function getSlugAttribute()
+    {
+        return Slugify::slugify($this->name);
+    }
+
+    /**
+     * Attribute: user name
      *
      * @return string
      */
@@ -79,7 +100,7 @@ class Character extends Model implements HasMedia
     }
 
     /**
-     * Accessor: avatar URL
+     * Attribute: avatar URL
      *
      * @return string
      */
@@ -89,7 +110,7 @@ class Character extends Model implements HasMedia
     }
 
     /**
-     * Accessor: portrait URL
+     * Attribute: portrait URL
      *
      * @return string
      */

@@ -22,9 +22,17 @@ class RouteServiceProvider extends ServiceProvider
     {
         parent::boot();
 
-        Route::model('user', User::class);
         Route::model('character', Character::class);
         Route::model('auth', OAuthUser::class);
+
+        Route::bind('user', function ($user) {
+            if ($user === 'me') {
+                return request()->user();
+            }
+
+            return User::findOrFail($user);
+        });
+
         Route::bind('world', function ($world) {
             return World::whereName(ucfirst($world))->first();
         });

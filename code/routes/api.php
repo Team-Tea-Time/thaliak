@@ -14,22 +14,33 @@ Route::group(['namespace' => 'Thaliak\Http\Controllers\Api'], function (Router $
             $r->get('/', 'UsersController@index');
             $r->get('totals', 'UsersController@totals');
             $r->post('search', 'UsersController@search');
-            $r->patch('{user}', 'UsersController@update');
-            $r->delete('{user}', 'UsersController@delete');
-            $r->get('{user}/characters', 'UsersController@characters');
+            $r->post('/', 'UsersController@create');
+            $r->post('verify', 'UserController@verify');
+
+            $r->group(['prefix' => '{user}'], function (Router $r) {
+                $r->get('/', 'UsersController@get');
+                $r->get('characters', 'UsersController@characters');
+                $r->patch('/', 'UsersController@update');
+                $r->patch('state', 'UsersController@updateState');
+                $r->post('clear-token', 'UsersController@clearToken');
+                $r->delete('/', 'UsersController@delete');
+            });
         });
 
         // Characters
         $r->group(['prefix' => 'characters'], function (Router $r) {
             $r->get('/', 'CharactersController@index');
             $r->get('totals', 'CharactersController@totals');
-            $r->get('{character}', 'CharactersController@get');
             $r->post('search', 'CharactersController@search');
             $r->post('/', 'CharactersController@add');
-            $r->post('{character}/verify', 'CharactersController@verify');
-            $r->post('{character}/set-main', 'CharactersController@setMain');
-            $r->patch('{character}', 'CharactersController@update');
-            $r->delete('{character}', 'CharactersController@delete');
+
+            $r->group(['prefix' => '{character}'], function (Router $r) {
+                $r->get('/', 'CharactersController@get');
+                $r->post('verify', 'CharactersController@verify');
+                $r->post('set-main', 'CharactersController@setMain');
+                $r->patch('/', 'CharactersController@update');
+                $r->delete('/', 'CharactersController@delete');
+            });
         });
     });
 
@@ -39,15 +50,6 @@ Route::group(['namespace' => 'Thaliak\Http\Controllers\Api'], function (Router $
         $r->get('/', 'SocialAuthController@redirect');
         $r->get('receive', 'SocialAuthController@receive');
         $r->delete('{auth}', 'SocialAuthController@delete');
-    });
-
-    // Current user
-    $r->group(['prefix' => 'user'], function (Router $r) {
-        $r->get('me', 'UserController@get');
-        $r->post('/', 'UserController@create');
-        $r->post('verify', 'UserController@verify');
-        $r->patch('/', 'UserController@update');
-        $r->post('clear-token', 'UserController@clearToken');
     });
 });
 

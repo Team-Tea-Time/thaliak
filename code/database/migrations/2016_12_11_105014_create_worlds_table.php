@@ -22,6 +22,8 @@ class CreateWorldsTable extends Migration
                   ->references('id')->on('data_centres')
                   ->onDelete('cascade');
         });
+
+        DB::unprepared(file_get_contents('./database/data/worlds.sql'));
     }
 
     /**

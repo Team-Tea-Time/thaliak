@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateVerificationsTable extends Migration
+class CreateUserProfilesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,11 +13,15 @@ class CreateVerificationsTable extends Migration
      */
     public function up()
     {
-        Schema::create('verifications', function (Blueprint $table) {
+        Schema::create('user_profiles', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('model_type');
-            $table->char('model_id', 36);
-            $table->string('code');
+			$table->char('user_id', 36)->index();
+			$table->text('body')->nullable();
+			$table->timestamps();
+
+            $table->foreign('user_id')
+                  ->references('id')->on('users')
+                  ->onDelete('cascade');
         });
     }
 
@@ -28,6 +32,6 @@ class CreateVerificationsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('verifications');
+        Schema::dropIfExists('user_profiles');
     }
 }

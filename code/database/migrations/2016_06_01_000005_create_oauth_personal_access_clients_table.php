@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateOauthDriversTable extends Migration
+class CreateOauthPersonalAccessClientsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,14 +13,11 @@ class CreateOauthDriversTable extends Migration
      */
     public function up()
     {
-        Schema::create('oauth_drivers', function (Blueprint $table) {
+        Schema::create('oauth_personal_access_clients', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('name');
-            $table->boolean('active');
+            $table->integer('client_id')->index();
             $table->timestamps();
         });
-
-        DB::unprepared(file_get_contents('./database/data/oauth_drivers.sql'));
     }
 
     /**
@@ -30,6 +27,6 @@ class CreateOauthDriversTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('oauth_drivers');
+        Schema::drop('oauth_personal_access_clients');
     }
 }

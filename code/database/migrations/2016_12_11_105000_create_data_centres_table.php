@@ -17,6 +17,8 @@ class CreateDataCentresTable extends Migration
             $table->increments('id');
             $table->string('name');
         });
+
+        DB::unprepared(file_get_contents('./database/data/data_centres.sql'));
     }
 
     /**

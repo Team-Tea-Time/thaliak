@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Spatie\MediaLibrary\HasMedia\HasMediaTrait;
 use Spatie\MediaLibrary\HasMedia\Interfaces\HasMedia;
 
-class CharacterProfile extends Model implements HasMedia
+class UserProfile extends Model implements HasMedia
 {
     use HasMediaTrait;
 
@@ -29,32 +29,31 @@ class CharacterProfile extends Model implements HasMedia
      *
      * @var array
      */
-    protected $appends = ['portrait'];
+    protected $appends = ['avatar'];
 
     /**
-     * Relationship: Character
+     * Relationship: User
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function character()
+    public function user()
     {
-        return $this->belongsTo(Character::class);
+        return $this->belongsTo(User::class);
     }
 
     /**
-     * Attribute: portrait URL. Falls back to the character's lodestone portrait
-     * if no portrait is present for this profile.
+     * Attribute: avatar URL.
      *
      * @return string
      */
-    public function getPortraitAttribute()
+    public function getAvatarAttribute()
     {
-        $portrait = $this->media->where('name', 'profile_portrait')->first();
+        $avatar = $this->media->where('name', 'avatar')->first();
 
-        if (!$portrait) {
+        if (!$avatar) {
             return null;
         }
 
-        return $portrait->getUrl();
+        return $avatar->getUrl();
     }
 }

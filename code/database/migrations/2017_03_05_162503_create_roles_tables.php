@@ -22,10 +22,16 @@ class CreateRolesTables extends Migration
         Schema::create('role_user', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('role_id')->unsigned()->index();
-            $table->foreign('role_id')->references('id')->on('roles')->onDelete('cascade');
-            $table->integer('user_id')->unsigned()->index();
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            $table->char('user_id', 36)->index();
             $table->timestamps();
+
+            $table->foreign('role_id')
+                  ->references('id')->on('roles')
+                  ->onDelete('cascade');
+
+            $table->foreign('user_id')
+                  ->references('id')->on('users')
+                  ->onDelete('cascade');
         });
     }
 

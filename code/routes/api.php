@@ -15,7 +15,7 @@ Route::group(['namespace' => 'Thaliak\Http\Controllers\Api'], function (Router $
             $r->get('totals', 'UsersController@totals');
             $r->post('search', 'UsersController@search');
             $r->post('/', 'UsersController@create');
-            $r->post('verify', 'UserController@verify');
+            $r->post('verify', 'UsersController@verify');
 
             $r->group(['prefix' => '{user}'], function (Router $r) {
                 $r->get('/', 'UsersController@get');

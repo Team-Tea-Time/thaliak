@@ -6,11 +6,12 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Passport\HasApiTokens;
+use Thaliak\Models\Traits\HasUuids;
 use Thaliak\Models\Traits\HasVerificationCodes;
 
 class User extends Authenticatable
 {
-    use HasApiTokens, HasVerificationCodes, Notifiable;
+    use HasApiTokens, HasUuids, HasVerificationCodes, Notifiable;
 
     /**
      * The attributes that are mass assignable.
@@ -29,6 +30,13 @@ class User extends Authenticatable
     protected $hidden = [
         'password', 'remember_token',
     ];
+
+    /**
+     * Indicates if the IDs are auto-incrementing.
+     *
+     * @var bool
+     */
+    public $incrementing = false;
 
     /**
      * The relations to eager load on every query.
@@ -72,6 +80,16 @@ class User extends Authenticatable
     public function roles()
     {
         return $this->belongsToMany(Role::class)->withTimestamps();
+    }
+
+    /**
+     * Relationship: Profile
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
+    public function profile()
+    {
+        return $this->hasOne(UserProfile::class);
     }
 
     /**

@@ -15,7 +15,7 @@ class CreateCharactersTable extends Migration
     {
         Schema::create('characters', function (Blueprint $table) {
             $table->integer('id')->unsigned();
-            $table->integer('user_id')->unsigned();
+            $table->char('user_id', 36)->index();
             $table->integer('world_id')->unsigned();
             $table->boolean('verified');
             $table->string('name');

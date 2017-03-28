@@ -15,7 +15,7 @@ class CreateOauthUsersTable extends Migration
     {
         Schema::create('oauth_users', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer('user_id')->unsigned();
+            $table->char('user_id', 36)->index();
             $table->integer('oauth_driver_id')->unsigned();
             $table->string('provider_user_id');
             $table->string('access_token');

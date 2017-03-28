@@ -27,6 +27,8 @@ class User
             'active' => 0
         ]);
 
+        $user->profile()->create([]);
+
         static::createVerificationCode($user);
 
         return $user;

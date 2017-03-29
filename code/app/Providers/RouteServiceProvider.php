@@ -13,11 +13,6 @@ use Thaliak\Models\World;
 
 class RouteServiceProvider extends ServiceProvider
 {
-    /**
-     * Register any events for your application.
-     *
-     * @return void
-     */
     public function boot()
     {
         parent::boot();
@@ -41,11 +36,6 @@ class RouteServiceProvider extends ServiceProvider
         });
     }
 
-    /**
-     * Define the routes for the application.
-     *
-     * @return void
-     */
     public function map()
     {
         Route::group([

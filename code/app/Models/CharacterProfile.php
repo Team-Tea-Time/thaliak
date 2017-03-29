@@ -41,12 +41,6 @@ class CharacterProfile extends Model implements HasMedia
         return $this->belongsTo(Character::class);
     }
 
-    /**
-     * Attribute: portrait URL. Falls back to the character's lodestone portrait
-     * if no portrait is present for this profile.
-     *
-     * @return string
-     */
     public function getPortraitAttribute()
     {
         $portrait = $this->media->where('name', 'profile_portrait')->first();

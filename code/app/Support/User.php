@@ -11,13 +11,7 @@ use Laravel\Socialite\AbstractUser;
 
 class User
 {
-    /**
-     * Create a user.
-     *
-     * @param  array  $attributes
-     * @return UserModel
-     */
-    public static function create($attributes)
+    public static function create(Array $attributes): UserModel
     {
         $user = UserModel::create([
             'name' => $attributes['name'],
@@ -34,25 +28,13 @@ class User
         return $user;
     }
 
-    /**
-     * Create a verification for and notify the given user.
-     *
-     * @param  User  $user
-     * @return void
-     */
     public static function createVerificationCode(UserModel $user)
     {
         $user->createVerificationCode();
         $user->notify(new UserVerificationNotification);
     }
 
-    /**
-     * Create a user from a Socialite user.
-     *
-     * @param  AbstractUser  $socialite
-     * @return UserModel
-     */
-    public static function createFromSocialite(AbstractUser $socialite)
+    public static function createFromSocialite(AbstractUser $socialite): UserModel
     {
         return static::create([
             'name' => $socialite->name,
@@ -61,20 +43,11 @@ class User
         ]);
     }
 
-    /**
-     * Create an OAuth user from the given user, Socialite user and OAuth
-     * driver.
-     *
-     * @param  UserModel  $user
-     * @param  AbstractUser  $socialite
-     * @param  OAuthDriver  $driver
-     * @return OAuthUser
-     */
     public static function createOAuthUser(
         UserModel $user,
         AbstractUser $socialite,
         OAuthDriver $driver
-    )
+    ): OAuthUser
     {
         return OAuthUser::create([
             'user_id' => $user->id,

@@ -27,12 +27,7 @@ class OauthDriver extends Model
      */
     protected $appends = ['capitalised_name'];
 
-    /**
-     * Attribute: capitalised name.
-     *
-     * @return string
-     */
-    public function getCapitalisedNameAttribute()
+    public function getCapitalisedNameAttribute(): String
     {
         return ucfirst($this->name);
     }

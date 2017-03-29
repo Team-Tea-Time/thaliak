@@ -3,6 +3,9 @@
 namespace Thaliak\Models;
 
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Passport\HasApiTokens;
@@ -52,88 +55,44 @@ class User extends Authenticatable
      */
     protected $appends = ['role_list'];
 
-    /**
-     * Relationship: OAuth authentications.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
-     */
-    public function auths()
+    public function auths(): HasMany
     {
         return $this->hasMany(OAuthUser::class);
     }
 
-    /**
-     * Relationship: Characters
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
-     */
-    public function characters()
+    public function characters(): HasMany
     {
         return $this->hasMany(Character::class);
     }
 
-    /**
-     * Relationship: roles
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
-     */
-    public function roles()
+    public function roles(): BelongsToMany
     {
         return $this->belongsToMany(Role::class)->withTimestamps();
     }
 
-    /**
-     * Relationship: Profile
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasOne
-     */
-    public function profile()
+    public function profile(): HasOne
     {
         return $this->hasOne(UserProfile::class);
     }
 
-    /**
-     * Scope: Active
-     *
-     * @param  Builder  $builder
-     * @return Builder
-     */
-    public function scopeActive(Builder $builder)
+    public function scopeActive(Builder $builder): Builder
     {
         return $builder->where('active', 1);
     }
 
-    /**
-     * Scope: Auth
-     *
-     * @param  Builder  $builder
-     * @param  int  $authId
-     * @return Builder
-     */
-    public function scopeForAuth(Builder $builder, $authId)
+    public function scopeForAuth(Builder $builder, Int $authId): Builder
     {
         return $builder->whereHas('auths', function ($query) use ($authId) {
             $query->where('provider_user_id', $authId);
         });
     }
 
-    /**
-     * Attribute: role list
-     *
-     * @return string
-     */
-    public function getRoleListAttribute()
+    public function getRoleListAttribute(): String
     {
         return implode(', ', $this->roles()->pluck('name')->toArray());
     }
 
-    /**
-     * Find a user by identity for Passport requests.
-     *
-     * @param  string  $identity
-     * @return User
-     */
-    public function findForPassport($identity)
+    public function findForPassport(String $identity): User
     {
         $builder = (!!filter_var($identity, FILTER_VALIDATE_EMAIL))
             ? $this->where('email', $identity)
@@ -142,12 +101,7 @@ class User extends Authenticatable
         return $builder->verified()->active()->first();
     }
 
-    /**
-     * Activate the user (if applicable).
-     *
-     * @return User
-     */
-    public function activate()
+    public function activate(): User
     {
         if (!$this->active) {
             $this->active = 1;
@@ -157,12 +111,7 @@ class User extends Authenticatable
         return $this;
     }
 
-    /**
-     * Deactivate the user (if applicable).
-     *
-     * @return User
-     */
-    public function deactivate()
+    public function deactivate(): User
     {
         if ($this->active) {
             $this->active = 0;
@@ -172,13 +121,7 @@ class User extends Authenticatable
         return $this;
     }
 
-    /**
-     * Determine if the user has a given role (or one of multiple given roles)
-     *
-     * @param  string|array  $role
-     * @return bool
-     */
-    public function hasRole($role)
+    public function hasRole($role): Bool
     {
         if (is_array($role)) {
             foreach ($role as $r) {

@@ -19,21 +19,11 @@ class AuthServiceProvider extends ServiceProvider
         'Thaliak\Model' => 'Thaliak\Policies\ModelPolicy',
     ];
 
-    /**
-     * Register the service provider.
-     *
-     * @return void
-     */
     public function register()
     {
         Passport::ignoreMigrations();
     }
 
-    /**
-     * Register any authentication / authorization services.
-     *
-     * @return void
-     */
     public function boot()
     {
         $this->registerPolicies();

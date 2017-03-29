@@ -11,32 +11,14 @@ use Symfony\Component\HttpFoundation\Response;
 
 class ExtractTokenFromCookie
 {
-    /**
-     * The encrypter implementation.
-     *
-     * @var \Illuminate\Encryption\Encrypter
-     */
-    protected $encrypter;
+    protected $encrypter; // Encrypter
 
-    /**
-     * Create a new middleware instance.
-     *
-     * @param  \Illuminate\Encryption\Encrypter  $encrypter
-     * @return void
-     */
     public function __construct(Encrypter $encrypter)
     {
         $this->encrypter = $encrypter;
     }
 
-    /**
-     * Handle an incoming request.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Closure  $next
-     * @return mixed
-     */
-    public function handle($request, Closure $next)
+    public function handle(Request $request, Closure $next)
     {
         $cookie = $request->cookie(config('session.cookie'));
 

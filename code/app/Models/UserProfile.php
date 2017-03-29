@@ -3,6 +3,7 @@
 namespace Thaliak\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Spatie\MediaLibrary\HasMedia\HasMediaTrait;
 use Spatie\MediaLibrary\HasMedia\Interfaces\HasMedia;
 
@@ -31,22 +32,12 @@ class UserProfile extends Model implements HasMedia
      */
     protected $appends = ['avatar'];
 
-    /**
-     * Relationship: User
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-    public function user()
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-    /**
-     * Attribute: avatar URL.
-     *
-     * @return string
-     */
-    public function getAvatarAttribute()
+    public function getAvatarAttribute(): String
     {
         $avatar = $this->media->where('name', 'avatar')->first();
 

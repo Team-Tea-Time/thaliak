@@ -3,6 +3,7 @@
 namespace Thaliak\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class OauthUser extends Model
 {
@@ -41,12 +42,8 @@ class OauthUser extends Model
      */
     protected $with = ['driver'];
 
-    /**
-     * Relationship: OAuth Driver.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-    public function driver() {
+    public function driver(): BelongsTo
+    {
         return $this->belongsTo(OAuthDriver::class, 'oauth_driver_id');
     }
 }

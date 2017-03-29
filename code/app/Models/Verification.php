@@ -3,6 +3,7 @@
 namespace Thaliak\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 class Verification extends Model
 {
@@ -22,12 +23,7 @@ class Verification extends Model
         'model_type', 'model_id', 'code',
     ];
 
-    /**
-     * Relationship: verifiable model
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\MorphTo
-     */
-    public function model()
+    public function model(): MorphTo
     {
         return $this->morphTo();
     }

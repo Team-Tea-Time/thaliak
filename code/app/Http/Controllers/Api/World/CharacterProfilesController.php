@@ -8,23 +8,12 @@ use Thaliak\Models\CharacterProfile;
 
 class CharacterProfilesController extends Controller
 {
-    /**
-     * Create a new controller instance.
-     *
-     * @return void
-     */
     public function __construct()
     {
         $this->middleware('api-auth');
     }
 
-    /**
-     * Save a character's profile, creating a new one if it doesn't exist.
-     *
-     * @param  Request  $request
-     * @return CharacterProfile
-     */
-    public function save(Request $request)
+    public function save(Request $request): CharacterProfile
     {
         $this->validate($request, ['body' => 'string']);
 
@@ -53,13 +42,7 @@ class CharacterProfilesController extends Controller
         return $profile->fresh();
     }
 
-    /**
-     * Delete a character's profile portrait if it exists.
-     *
-     * @param  Request  $request
-     * @return CharacterProfile
-     */
-    public function deletePortrait(Request $request)
+    public function deletePortrait(Request $request): CharacterProfile
     {
         $profile = $request->character->profile;
 

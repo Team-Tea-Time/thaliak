@@ -12,24 +12,12 @@ class UserVerification extends Notification
 {
     use Queueable;
 
-    /**
-     * Get the notification's delivery channels.
-     *
-     * @param  mixed  $notifiable
-     * @return array
-     */
-    public function via($notifiable)
+    public function via($notifiable): Array
     {
         return ['mail'];
     }
 
-    /**
-     * Get the mail representation of the notification.
-     *
-     * @param  mixed  $notifiable
-     * @return \Illuminate\Notifications\Messages\MailMessage
-     */
-    public function toMail($notifiable)
+    public function toMail($notifiable): MailMessage
     {
         return (new MailMessage)
                     ->line('Someone (hopefully you!) used this email address for an xiv.world account.')
@@ -37,16 +25,8 @@ class UserVerification extends Notification
                     ->action('Verify Email', url("user/verify/{$notifiable->verification->code}"));
     }
 
-    /**
-     * Get the array representation of the notification.
-     *
-     * @param  mixed  $notifiable
-     * @return array
-     */
-    public function toArray($notifiable)
+    public function toArray($notifiable): Array
     {
-        return [
-            //
-        ];
+        return [];
     }
 }

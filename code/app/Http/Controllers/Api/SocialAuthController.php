@@ -2,6 +2,11 @@
 
 namespace Thaliak\Http\Controllers\Api;
 
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
+use Illuminate\Validation\Rule;
+use Laravel\Socialite\Two\AbstractProvider;
 use Socialite;
 use Thaliak\Http\Controllers\Controller;
 use Thaliak\Models\OAuthDriver;
@@ -9,34 +14,14 @@ use Thaliak\Models\OAuthUser;
 use Thaliak\Models\User;
 use Thaliak\Support\Auth as AuthSupport;
 use Thaliak\Support\User as UserSupport;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
 use Validator;
 
 class SocialAuthController extends Controller
 {
-    /**
-     * @var OAuthDriver
-     */
-    private $driver;
+    private $driver;    // OAuthDriver
+    private $provider;  // AbstractProvider
+    private $auth;      // AuthSupport
 
-    /**
-     * @var \Laravel\Socialite\Two\AbstractProvider
-     */
-    private $provider;
-
-    /**
-     * @var AuthSupport
-     */
-    private $auth;
-
-    /**
-     * Create a new social auth controller instance.
-     *
-     * @param  Request  $request
-     * @param  AuthSupport  $auth
-     */
     public function __construct(Request $request, AuthSupport $auth)
     {
         if ($request->route('provider')) {
@@ -47,36 +32,19 @@ class SocialAuthController extends Controller
         $this->auth = $auth;
     }
 
-    /**
-     * Return a list of available social OAuth drivers.
-     *
-     * @return array
-     */
-    public function drivers()
+    public function drivers(): Collection
     {
         return OAuthDriver::whereActive(1)->get();
     }
 
-    /**
-     * Redirect the user to the given provider's authentication page.
-     *
-     * @param  string  $provider
-     * @return Response
-     */
-    public function redirect(Request $request)
+    public function redirect(Request $request): JsonResponse
     {
         return new JsonResponse(
             $this->provider->redirect()->getTargetUrl()
         );
     }
 
-    /**
-     * Handle a provider callback.
-     *
-     * @param  Request  $request
-     * @return Response
-     */
-    public function receive(Request $request)
+    public function receive(Request $request): JsonResponse
     {
         $auth = $this->provider->user();
         $state = [
@@ -115,39 +83,20 @@ class SocialAuthController extends Controller
         return $response;
     }
 
-    /**
-     * Delete an auth instance.
-     *
-     * @param  Request  $request
-     * @return OAuthUser
-     */
-    public function delete(Request $request)
+    public function delete(Request $request): OAuthUser
     {
         $request->auth->delete();
         return $request->auth;
     }
 
-    /**
-     * Return a driver instance for the given provider.
-     *
-     * @param  string  $provider
-     * @return OAuthDriver
-     */
-    private function getDriver($provider)
+    private function getDriver($provider): OAuthDriver
     {
         return OAuthDriver::whereName($provider)
                           ->whereActive(1)
                           ->firstOrFail();
     }
 
-    /**
-     * Return a Socialite provider instance for the given provider
-     * name.
-     *
-     * @param  string  $provider
-     * @return \Laravel\Socialite\Two\AbstractProvider
-     */
-    private function getProvider($provider)
+    private function getProvider($provider): AbstractProvider
     {
         return Socialite::driver($provider)->stateless();
     }

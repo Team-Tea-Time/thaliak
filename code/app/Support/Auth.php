@@ -9,30 +9,14 @@ use Symfony\Component\HttpFoundation\Cookie;
 
 class Auth
 {
-    /**
-     * The encrypter implementation.
-     *
-     * @var \Illuminate\Encryption\Encrypter
-     */
-    protected $encrypter;
+    protected $encrypter; // Encrypter
 
-    /**
-     * Create an auth support instance.
-     *
-     * @param Encrypter
-     */
     public function __construct(Encrypter $encrypter)
     {
         $this->encrypter = $encrypter;
     }
 
-    /**
-     * Create a cookie for the given auth token.
-     *
-     * @param  array  $token
-     * @return Cookie
-     */
-    public function createCookieForToken($token)
+    public function createCookieForToken(Array $token): Cookie
     {
         $config = config('session');
 

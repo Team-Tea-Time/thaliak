@@ -2,7 +2,10 @@
 
 namespace Thaliak\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Slugify;
 use Spatie\MediaLibrary\HasMedia\HasMediaTrait;
 use Spatie\MediaLibrary\HasMedia\Interfaces\HasMedia;
@@ -49,99 +52,53 @@ class Character extends Model implements HasMedia
      */
     protected $hidden = ['user'];
 
-    /**
-     * Relationship: User
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-    public function user()
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-    /**
-     * Relationship: World
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-    public function world()
+    public function world(): BelongsTo
     {
         return $this->belongsTo(World::class);
     }
 
-    /**
-     * Relationship: Profile
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasOne
-     */
-    public function profile()
+    public function profile(): HasOne
     {
         return $this->hasOne(CharacterProfile::class);
     }
 
-    /**
-     * Attribute: slug
-     *
-     * @return string
-     */
-    public function getSlugAttribute()
+    public function getSlugAttribute(): String
     {
         return Slugify::slugify($this->name);
     }
 
-    /**
-     * Attribute: user name
-     *
-     * @return string
-     */
-    public function getUserNameAttribute()
+    public function getUserNameAttribute(): String
     {
         return $this->user->name;
     }
 
-    /**
-     * Attribute: avatar URL
-     *
-     * @return string
-     */
-    public function getAvatarAttribute()
+    public function getAvatarAttribute(): String
     {
         return $this->media->where('name', 'avatar')->first()->getUrl();
     }
 
-    /**
-     * Attribute: portrait URL
-     *
-     * @return string
-     */
-    public function getPortraitAttribute()
+    public function getPortraitAttribute(): String
     {
         return $this->media->where('name', 'portrait')->first()->getUrl();
     }
 
-    /**
-     * Scope: World
-     *
-     * @param \Illuminate\Database\Eloquent\Builder $query
-     * @param World $world
-     * @return \Illuminate\Database\Eloquent\Builder
-     */
-    public function scopeWorld($query, $world)
+    public function scopeWorld(Builder $query, World $world): Builder
     {
         return $query->whereHas('world', function ($query) use ($world) {
             $query->whereRaw('LOWER(name) = ?', [$world->name]);
         });
     }
 
-    /**
-     * Create a character from a Lodestone instance
-     *
-     * @param LodestoneCharacter
-     * @param User $user
-     * @param World $world
-     * @return Character
-     */
-    public static function createFromLodestone(LodestoneCharacter $character, User $user, World $world)
+    public static function createFromLodestone(
+        LodestoneCharacter $character,
+        User $user,
+        World $world
+    ): Character
     {
         return static::create([
             'id'            => $character->id,
@@ -160,13 +117,7 @@ class Character extends Model implements HasMedia
         ]);
     }
 
-    /**
-     * Set the current character instance as 'main', changing the status of
-     * other characters owned by the same user to 'alt'.
-     *
-     * @return Character
-     */
-    public function setMain()
+    public function setMain(): Character
     {
         $this->update(['status' => CharacterStatus::MAIN]);
 

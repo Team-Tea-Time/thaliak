@@ -3,50 +3,24 @@
 namespace Thaliak\Http\Middleware;
 
 use Closure;
-use Laravel\Passport\Client;
-use Illuminate\Encryption\Encrypter;
-use Laravel\Passport\ClientRepository;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Encryption\Encrypter;
+use Illuminate\Http\Request;
+use Laravel\Passport\Client;
+use Laravel\Passport\ClientRepository;
 
 class HandleGrantParameterInjections
 {
-    /**
-     * The Client Repository instance.
-     *
-     * @var \Laravel\Passport\ClientRepository
-     */
-    protected $clients;
+    protected $clients;     // ClientRepository
+    protected $encrypter;   // Encrypter
 
-    /**
-     * The encrypter implementation.
-     *
-     * @var \Illuminate\Encryption\Encrypter
-     */
-    protected $encrypter;
-
-    /**
-     * Create a new middleware instance.
-     *
-     * @param  \Laravel\Passport\ClientRepository  $clients
-     * @param  \Illuminate\Encryption\Encrypter  $encrypter
-     * @return void
-     */
     public function __construct(ClientRepository $clients, Encrypter $encrypter)
     {
         $this->clients = $clients;
         $this->encrypter = $encrypter;
     }
 
-    /**
-     * Handle an incoming request.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Closure  $next
-     * @return mixed
-     *
-     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
-     */
-    public function handle($request, Closure $next)
+    public function handle(Request $request, Closure $next)
     {
         if ($request->grant_type === 'password') {
             $client = $this->clients->find($request->client_id);

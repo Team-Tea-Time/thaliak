@@ -2,7 +2,9 @@
 
 namespace Thaliak\Http\Controllers\Api\World;
 
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Storage;
 use Thaliak\Http\Controllers\Controller;
 use Thaliak\Http\Lodestone\Api;
@@ -11,40 +13,20 @@ use Thaliak\Models\World;
 
 class CharactersController extends Controller
 {
-    /**
-     * @var Api
-     */
-    private $lodestone;
+    private $lodestone; // Api
 
-    /**
-     * Create a new controller instance.
-     *
-     * @param  Api  $lodestone
-     * @return void
-     */
     public function __construct(Api $lodestone)
     {
-        $this->middleware('api-auth', ['except' => ['index', 'get', 'searc']]);
+        $this->middleware('api-auth', ['except' => ['index', 'get', 'search']]);
         $this->lodestone = $lodestone;
     }
 
-    /**
-     * Return an index of characters.
-     *
-     * @param  Request  $request
-     * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
-     */
-    public function index(Request $request)
+    public function index(Request $request): LengthAwarePaginator
     {
         return Character::paginate();
     }
 
-    /**
-     * Return character totals.
-     *
-     * @return array
-     */
-    public function totals()
+    public function totals(): Array
     {
         return [
             'total' => Character::count(),
@@ -52,24 +34,12 @@ class CharactersController extends Controller
         ];
     }
 
-    /**
-     * Return a specified character.
-     *
-     * @param  Request  $request
-     * @return Character
-     */
-    public function get(Request $request)
+    public function get(Request $request): Character
     {
         return $request->character;
     }
 
-    /**
-     * Search for characters on Lodestone by name.
-     *
-     * @param  Request  $request
-     * @return \Illuminate\Support\Collection
-     */
-    public function search(Request $request)
+    public function search(Request $request): Collection
     {
         $this->validate($request, ['name' => 'required|string']);
 
@@ -79,13 +49,7 @@ class CharactersController extends Controller
         );
     }
 
-    /**
-     * Add a character from Lodestone by ID.
-     *
-     * @param  Request  $request
-     * @return Character
-     */
-    public function add(Request $request)
+    public function add(Request $request): Character
     {
         $this->validate($request,
             ['id' => 'required|numeric|unique:characters'],
@@ -118,13 +82,7 @@ class CharactersController extends Controller
         return $character->load('verification');
     }
 
-    /**
-     * Verify character ownership via Lodestone.
-     *
-     * @param  Request  $request
-     * @return Character
-     */
-    public function verify(Request $request)
+    public function verify(Request $request): Character
     {
         $lodestone = $this->lodestone->getCharacter($request->character->id);
 
@@ -135,24 +93,12 @@ class CharactersController extends Controller
         return $request->character->verify();
     }
 
-    /**
-     * Set a character as 'main'.
-     *
-     * @param  Request  $request
-     * @return Character
-     */
-    public function setMain(Request $request)
+    public function setMain(Request $request): Character
     {
         return $request->character->setMain();
     }
 
-    /**
-     * Update a character.
-     *
-     * @param  Request  $request
-     * @return Character
-     */
-    public function update(Request $request)
+    public function update(Request $request): Character
     {
         $this->validate($request, [
             'verified' => 'boolean',
@@ -167,13 +113,7 @@ class CharactersController extends Controller
         return $request->character->fresh();
     }
 
-    /**
-     * Delete a character.
-     *
-     * @param  Request  $request
-     * @return Character
-     */
-    public function delete(Request $request)
+    public function delete(Request $request): Character
     {
         $request->character->delete();
         return $request->character;

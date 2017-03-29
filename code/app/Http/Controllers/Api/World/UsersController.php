@@ -3,7 +3,9 @@
 namespace Thaliak\Http\Controllers\Api\World;
 
 use Cookie;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Hash;
 use Thaliak\Http\Controllers\Controller;
 use Thaliak\Models\User;
@@ -11,34 +13,18 @@ use Thaliak\Support\User as UserSupport;
 
 class UsersController extends Controller
 {
-    /**
-     * Create a new controller instance.
-     *
-     * @return void
-     */
     public function __construct()
     {
         $this->middleware('api-auth', ['except' => ['create', 'verify']]);
         $this->middleware('guest', ['only' => ['create', 'verify']]);
     }
 
-    /**
-     * Return an index of users.
-     *
-     * @param  Request  $request
-     * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
-     */
-    public function index(Request $request)
+    public function index(Request $request): LengthAwarePaginator
     {
         return User::paginate();
     }
 
-    /**
-     * Return user totals.
-     *
-     * @return array
-     */
-    public function totals()
+    public function totals(): Array
     {
         return [
             'total' => User::count(),
@@ -46,25 +32,13 @@ class UsersController extends Controller
         ];
     }
 
-    /**
-     * Search for users by name.
-     *
-     * @param  Request  $request
-     * @return \Illuminate\Support\Collection
-     */
-    public function search(Request $request)
+    public function search(Request $request): Collection
     {
         $this->validate($request, ['name' => 'required|string']);
         return User::where('name', 'LIKE', "%{$request->name}%")->get();
     }
 
-    /**
-     * Create a new user instance after a valid registration.
-     *
-     * @param  Request  $request
-     * @return User
-     */
-    public function create(Request $request)
+    public function create(Request $request): User
     {
         $this->validate($request, [
             'name' => 'required|max:255|unique:users',
@@ -79,36 +53,18 @@ class UsersController extends Controller
         return $user->makeHidden('verification');
     }
 
-    /**
-     * Verify a user account via the given verification code.
-     *
-     * @param  Request  $request
-     * @return User
-     */
-    public function verify(Request $request)
+    public function verify(Request $request): User
     {
         $user = User::byVerification($request->code)->firstOrFail();
         return $user->verify()->activate();
     }
 
-    /**
-     * Return a specified user.
-     *
-     * @param  Request  $request
-     * @return User
-     */
-    public function get(Request $request)
+    public function get(Request $request): User
     {
         return $request->user;
     }
 
-    /**
-     * Get a list of the current user's characters.
-     *
-     * @param  Request  $request
-     * @return array
-     */
-    public function characters(Request $request)
+    public function characters(Request $request): Collection
     {
         return $request
             ->user
@@ -118,13 +74,7 @@ class UsersController extends Controller
             ->get();
     }
 
-    /**
-     * Update a user.
-     *
-     * @param  Request  $request
-     * @return User
-     */
-    public function update(Request $request)
+    public function update(Request $request): User
     {
         $this->validate($request, ['password' => 'min:6|confirmed']);
 
@@ -157,13 +107,7 @@ class UsersController extends Controller
         return $user;
     }
 
-    /**
-     * Update a user's state.
-     *
-     * @param  Request  $request
-     * @return User
-     */
-    public function updateState(Request $request)
+    public function updateState(Request $request): User
     {
         $this->validate($request, [
             'verified' => 'boolean',
@@ -175,25 +119,13 @@ class UsersController extends Controller
         return $request->user->fresh();
     }
 
-    /**
-     * Clear a user's auth token.
-     *
-     * @param  Request  $request
-     * @return null
-     */
     public function clearToken(Request $request)
     {
         Cookie::forget('auth');
         $request->user->token()->revoke();
     }
 
-    /**
-     * Delete a specified user.
-     *
-     * @param  Request  $request
-     * @return User
-     */
-    public function delete(Request $request)
+    public function delete(Request $request): User
     {
         $request->user->delete();
         return $request->user;

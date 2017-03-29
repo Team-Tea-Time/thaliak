@@ -186,7 +186,6 @@ return [
         /*
          * Application Service Providers...
          */
-        Thaliak\Providers\AppServiceProvider::class,
         Thaliak\Providers\AuthServiceProvider::class,
         Thaliak\Providers\EventServiceProvider::class,
         Thaliak\Providers\RouteServiceProvider::class,

@@ -3,49 +3,26 @@
 namespace Thaliak\Http\Lodestone;
 
 use Goutte\Client;
+use Illuminate\Support\Collection;
 use Symfony\Component\DomCrawler\Crawler;
 
 class Api
 {
-    /**
-     * @var Client
-     */
-    protected $client;
+    protected $client;  // Client
+    protected $uri;     // String
 
-    /**
-     * @var string
-     */
-    protected $uri;
-
-    /**
-     * Create a new Lodestone API instance.
-     *
-     * @param  Client  $client
-     */
     public function __construct(Client $client)
     {
         $this->client = $client;
         $this->uri = 'http://eu.finalfantasyxiv.com/lodestone/';
     }
 
-    /**
-     * Get a crawler instance.
-     *
-     * @return \Symfony\Component\DomCrawler\Crawler
-     */
-    protected function getCrawler($path)
+    protected function getCrawler($path): Crawler
     {
         return $this->client->request('GET', "{$this->uri}{$path}");
     }
 
-    /**
-     * Search for a character by name and world.
-     *
-     * @param  string  $name
-     * @param  string  $world
-     * @return \Illuminate\Support\Collection
-     */
-    public function searchCharacter($name, $world)
+    public function searchCharacter(String $name, String $world): Collection
     {
         $crawler = $this->getCrawler("character/?q={$name}&worldname={$world}");
         $results = $crawler
@@ -65,13 +42,7 @@ class Api
         return collect($results);
     }
 
-    /**
-     * Get a character by ID.
-     *
-     * @param  int  $id
-     * @return Character|mixed
-     */
-    public function getCharacter($id)
+    public function getCharacter(Int $id): Character
     {
         $crawler = $this->getCrawler("character/{$id}");
 

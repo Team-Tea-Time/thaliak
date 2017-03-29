@@ -37,7 +37,7 @@ class UserProfile extends Model implements HasMedia
         return $this->belongsTo(User::class);
     }
 
-    public function getAvatarAttribute(): String
+    public function getAvatarAttribute()
     {
         $avatar = $this->media->where('name', 'avatar')->first();
 

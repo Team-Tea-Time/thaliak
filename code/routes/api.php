@@ -17,6 +17,8 @@ Route::group(['namespace' => 'Thaliak\Http\Controllers\Api'], function (Router $
             $r->post('/', 'UsersController@create');
             $r->post('verify', 'UsersController@verify');
 
+            $r->get('by-name/{user_by_name}', 'UsersController@get');
+
             $r->group(['prefix' => '{user}'], function (Router $r) {
                 $r->get('/', 'UsersController@get');
                 $r->get('characters', 'UsersController@characters');
@@ -55,6 +57,12 @@ Route::group(['namespace' => 'Thaliak\Http\Controllers\Api'], function (Router $
         $r->get('/', 'SocialAuthController@redirect');
         $r->get('receive', 'SocialAuthController@receive');
         $r->delete('{auth}', 'SocialAuthController@delete');
+    });
+
+    // Password resetting
+    Route::group(['prefix' => 'auth/password'], function (Router $r) {
+        $r->post('reset/request', 'PasswordResetController@request');
+        $r->post('reset', 'PasswordResetController@reset');
     });
 });
 

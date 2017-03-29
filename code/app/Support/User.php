@@ -2,9 +2,13 @@
 
 namespace Thaliak\Support;
 
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
+use Thaliak\Notifications\PasswordReset as PasswordResetNotification;
 use Thaliak\Notifications\UserVerification as UserVerificationNotification;
 use Thaliak\Models\OAuthDriver;
 use Thaliak\Models\OAuthUser;
+use Thaliak\Models\PasswordReset;
 use Thaliak\Models\User as UserModel;
 use Thaliak\Models\UserVerification;
 use Laravel\Socialite\AbstractUser;
@@ -39,7 +43,7 @@ class User
         return static::create([
             'name' => $socialite->name,
             'email' => $socialite->email,
-            'password' => str_random(32)
+            'password' => Hash::make(Str::random(32))
         ]);
     }
 
@@ -55,5 +59,44 @@ class User
             'access_token' => $socialite->token,
             'oauth_driver_id' => $driver->id
         ]);
+    }
+
+    public static function issuePasswordReset(String $email): PasswordReset
+    {
+        $user = UserModel::whereEmail($email)->first();
+
+        $token = Str::random(16);
+
+        if ($user->passwordReset) {
+            $user->passwordReset->delete();
+        }
+
+        $user->passwordReset()->create([
+            'token' => Hash::make($token)
+        ]);
+
+        $user->notify(new PasswordResetNotification($token));
+
+        return $user->fresh()->passwordReset;
+    }
+
+    public static function resetPassword(
+        String $token,
+        String $email,
+        String $password
+    ): UserModel
+    {
+        $passwordReset = PasswordReset::whereEmail($email)->first();
+
+        if (!Hash::check($token, $passwordReset->token)) {
+            abort(422, ['token' => ["Token is invalid."]]);
+        }
+
+        $user = $passwordReset->user;
+
+        $user->update(['password' => Hash::make($password)]);
+        $passwordReset->delete();
+
+        return $user;
     }
 }

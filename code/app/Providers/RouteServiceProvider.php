@@ -31,6 +31,10 @@ class RouteServiceProvider extends ServiceProvider
             return User::findOrFail($user);
         });
 
+        Route::bind('user_by_name', function ($name) {
+            return User::whereName(urldecode($name))->first();
+        });
+
         Route::bind('world', function ($world) {
             return World::whereName(ucfirst($world))->first();
         });

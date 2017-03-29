@@ -46,18 +46,23 @@ class User extends Authenticatable
      *
      * @var array
      */
-    protected $with = ['auths', 'roles'];
+    protected $with = ['auths', 'roles', 'profile'];
 
     /**
      * The accessors to append to the model's array form.
      *
      * @var array
      */
-    protected $appends = ['role_list'];
+    protected $appends = ['url_encoded_name', 'role_list'];
 
     public function auths(): HasMany
     {
         return $this->hasMany(OAuthUser::class);
+    }
+
+    public function passwordReset(): HasOne
+    {
+        return $this->hasOne(PasswordReset::class, 'email', 'email');
     }
 
     public function characters(): HasMany
@@ -85,6 +90,11 @@ class User extends Authenticatable
         return $builder->whereHas('auths', function ($query) use ($authId) {
             $query->where('provider_user_id', $authId);
         });
+    }
+
+    public function getUrlEncodedNameAttribute(): String
+    {
+        return urlencode($this->name);
     }
 
     public function getRoleListAttribute(): String

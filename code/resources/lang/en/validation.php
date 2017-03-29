@@ -19,6 +19,7 @@ return [
     'alpha'                => 'This may only contain letters.',
     'alpha_dash'           => 'This may only contain letters, numbers, and dashes.',
     'alpha_num'            => 'This may only contain letters and numbers.',
+    'alpha_num_spaces'     => 'This may only contain letters, numbers and spaces.',
     'array'                => 'This must be an array.',
     'before'               => 'This must be a date before :date.',
     'between'              => [

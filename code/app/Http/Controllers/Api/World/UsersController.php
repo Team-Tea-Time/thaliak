@@ -41,7 +41,7 @@ class UsersController extends Controller
     public function create(Request $request): User
     {
         $this->validate($request, [
-            'name' => 'required|max:255|unique:users',
+            'name' => 'required|alpha_num_spaces|max:255|unique:users',
             'email' => 'required|email|max:255|unique:users',
             'password' => 'required|min:6|confirmed',
         ]);
@@ -74,7 +74,7 @@ class UsersController extends Controller
             ->get();
     }
 
-    public function update(Request $request): User
+    public function update(Request $request)
     {
         $this->validate($request, ['password' => 'min:6|confirmed']);
 

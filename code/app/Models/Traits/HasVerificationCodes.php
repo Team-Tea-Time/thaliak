@@ -5,6 +5,7 @@ namespace Thaliak\Models\Traits;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
+use Illuminate\Support\Str;
 use Thaliak\Models\Verification;
 
 trait HasVerificationCodes
@@ -42,7 +43,7 @@ trait HasVerificationCodes
 
     public function createVerificationCode(): Model
     {
-        $this->verification()->create(['code' => str_random(16)]);
+        $this->verification()->create(['code' => Str::random(16)]);
     }
 
     public function verify(): Model

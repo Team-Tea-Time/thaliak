@@ -64,6 +64,11 @@ class UsersController extends Controller
         return $request->user;
     }
 
+    public function getByName(Request $request): User
+    {
+        return $request->user_by_name;
+    }
+
     public function characters(Request $request): Collection
     {
         return $request

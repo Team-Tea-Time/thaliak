@@ -26,6 +26,11 @@ Route::group(['namespace' => 'Thaliak\Http\Controllers\Api'], function (Router $
                 $r->patch('state', 'UsersController@updateState');
                 $r->post('clear-token', 'UsersController@clearToken');
                 $r->delete('/', 'UsersController@delete');
+
+                $r->group(['prefix' => 'profile'], function (Router $r) {
+                    $r->post('/', 'UserProfilesController@save');
+                    $r->delete('avatar', 'UserProfilesController@deleteAvatar');
+                });
             });
         });
 

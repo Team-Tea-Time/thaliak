@@ -5,9 +5,9 @@ namespace Thaliak\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Spatie\MediaLibrary\HasMedia\HasMediaTrait;
-use Spatie\MediaLibrary\HasMedia\Interfaces\HasMedia;
+use Spatie\MediaLibrary\HasMedia\Interfaces\HasMediaConversions;
 
-class UserProfile extends Model implements HasMedia
+class UserProfile extends Model implements HasMediaConversions
 {
     use HasMediaTrait;
 
@@ -45,6 +45,13 @@ class UserProfile extends Model implements HasMedia
             return null;
         }
 
-        return $avatar->getUrl();
+        return $avatar->getUrl('thumb');
+    }
+
+    public function registerMediaConversions()
+    {
+        $this->addMediaConversion('thumb')
+              ->width(96)
+              ->height(96);
     }
 }

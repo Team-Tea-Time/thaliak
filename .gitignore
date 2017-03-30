@@ -1,6 +1,7 @@
 /code/node_modules
 /code/public/storage
 /code/storage/*.key
+/code/storage/medialibrary
 /code/vendor
 /code/.idea
 /code/Homestead.json

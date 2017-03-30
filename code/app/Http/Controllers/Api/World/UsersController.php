@@ -15,7 +15,7 @@ class UsersController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('api-auth', ['except' => ['create', 'verify']]);
+        $this->middleware('api-auth', ['except' => ['create', 'verify', 'getByName']]);
         $this->middleware('guest', ['only' => ['create', 'verify']]);
     }
 

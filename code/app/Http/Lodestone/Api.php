@@ -26,15 +26,15 @@ class Api
     {
         $crawler = $this->getCrawler("character/?q={$name}&worldname={$world}");
         $results = $crawler
-            ->filter('.table_black_border_bottom > table tr')
+            ->filter('.ldst__window .entry')
             ->each(function (Crawler $node, $i) use ($world) {
                 // ID & name
-                $link = $node->filter('.player_name_area a')->first();
+                $link = $node->filter('.entry__link')->first();
                 $id = preg_replace('/[^0-9]/', '', $link->attr('href'));
-                $name = $link->text();
+                $name = $link->filter('.entry__name')->text();
 
                 // Avatar
-                $avatar = $node->filter('th img')->first()->attr('src');
+                $avatar = $node->filter('.entry__chara__face img')->first()->attr('src');
 
                 return new Character(compact('id', 'name', 'world', 'avatar'));
             });
@@ -44,55 +44,72 @@ class Api
 
     public function getCharacter(Int $id): Character
     {
+        $attributes = compact('id');
+
         $crawler = $this->getCrawler("character/{$id}");
 
-        $profileBoxes = $crawler->filter('.chara_profile_footer .chara_profile_box_info');
-
         // Name
-        $name = $crawler->filter('.player_name_txt h2 a')->text();
+        $attributes['name'] = $crawler->filter('.frame__chara__name')->text();
 
         // World
-        $world = str_replace(' ', '', str_replace(['(', ')'], '', $crawler->filter('.player_name_txt h2 span')->text()));
-
-        // Race, clan and gender
-        list($race, $clan, $gender) = explode(' / ', $crawler->filter('.chara_profile_footer .chara_profile_title')->text());
-        $gender = ($gender == '♂') ? 'Male' : 'Female';
+        $attributes['world'] = $crawler->filter('.frame__chara__world')->text();
 
         // Avatar
-        $avatar = $crawler->filter('.player_name_thumb img')->attr('src');
+        $attributes['avatar'] = $crawler->filter('.frame__chara__face img')->attr('src');
 
         // Portrait
-        $portrait = $crawler->filter('#chara_img_area .img_area img')->attr('src');
+        $attributes['portrait'] = $crawler->filter('.character__view .character__detail__image a img')->attr('src');
 
-        // Introduction
-        $introduction = $crawler->filter('.txt_selfintroduction')->html();
+        // Profile blocks
+        $profileBlocks = $crawler->filter('.character__profile__data__detail .character-block__box');
+        $profileBlocks->each(function ($node) use (&$attributes) {
+            $node->filter('.character-block__title')->each(function ($node) use (&$attributes) {
+                switch ($node->text()) {
+                    case 'Race/Clan/Gender':
+                        $matches = [];
+                        preg_match(
+                            '/(.*)<br>(.*)\s+\/\s+(♂|♀)/',
+                            $node->nextAll()->html(),
+                            $matches
+                        );
+                        array_shift($matches);
+                        list($race, $clan, $gender) = $matches;
+                        $gender = ($gender == '♂') ? 'Male' : 'Female';
 
-        // Nameday
-        $nameday = $profileBoxes->first()->filter('.txt_name')->eq(0)->text();
-
-        // Guardian
-        $guardian = $profileBoxes->first()->filter('.txt_name')->eq(1)->text();
-
-        // City state
-        $city_state = $profileBoxes->eq(1)->filter('.txt_name')->text();
-
-        // Grand company
-        $node = $profileBoxes->eq(2)->filter('.txt_name');
-        $grand_company = $node->count() ? $node->text() : '';
+                        $attributes += compact('race', 'clan', 'gender');
+                        break;
+                    case 'Nameday':
+                        $attributes['nameday'] = $node->nextAll()->text();
+                        break;
+                    case 'Guardian':
+                        $attributes['guardian'] = $node->nextAll()->text();
+                        break;
+                    case 'City-state':
+                        $attributes['city_state'] = $node->nextAll()->text();
+                        break;
+                    case 'Grand Company':
+                        $attributes['grand_company'] = $node->nextAll()->text();
+                        break;
+                }
+            });
+        });
 
         // Active class
-        $class = $crawler->filter('#class_info')->first();
-        $classImage = $class->filter('.ic_class_wh24_box img')->first()->attr('src');
+        $class = $crawler->filter('.character__class');
+        $classImage = $class->filter('.character__class_icon img')->attr('src');
         $matches = [];
-        preg_match('^.*\/class\/\d*\/(.*)\.png^', $classImage, $matches);
+        preg_match('/^.*\/(.+).png$/', $classImage, $matches);
         $classID = $matches[1];
-        $active_class = ['id' => $classID, 'level' => preg_replace('/[^0-9]/', '', $class->filter('.level')->text())];
 
-        return new Character(
-            compact(
-                'id', 'name', 'world', 'gender', 'avatar', 'portrait', 'introduction', 'race',
-                'clan', 'nameday', 'guardian', 'city_state', 'grand_company', 'active_class'
+        $attributes['active_class'] = [
+            'id' => $classID,
+            'level' => preg_replace(
+                '/[^0-9]/',
+                '',
+                $class->filter('.character__class__data p')->first()->text()
             )
-        );
+        ];
+
+        return new Character($attributes);
     }
 }

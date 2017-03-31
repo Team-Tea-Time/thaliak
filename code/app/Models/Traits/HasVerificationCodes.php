@@ -41,7 +41,7 @@ trait HasVerificationCodes
         });
     }
 
-    public function createVerificationCode(): Model
+    public function createVerificationCode()
     {
         $this->verification()->create(['code' => Str::random(16)]);
     }

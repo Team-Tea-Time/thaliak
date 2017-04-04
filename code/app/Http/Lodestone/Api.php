@@ -72,11 +72,12 @@ class Api
                             $node->nextAll()->html(),
                             $matches
                         );
-                        array_shift($matches);
-                        list($race, $clan, $gender) = $matches;
-                        $gender = ($gender == '♂') ? 'Male' : 'Female';
 
-                        $attributes += compact('race', 'clan', 'gender');
+                        $attributes += [
+                            'race' => $matches[1],
+                            'clan' => $matches[2],
+                            'gender' => ($matches[3] == '♂') ? 'Male' : 'Female'
+                        ];
                         break;
                     case 'Nameday':
                         $attributes['nameday'] = $node->nextAll()->text();

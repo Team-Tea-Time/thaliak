@@ -19,6 +19,8 @@ class CreateRolesTables extends Migration
             $table->string('colour');
         });
 
+        DB::unprepared(file_get_contents('./database/data/roles.sql'));
+
         Schema::create('role_user', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('role_id')->unsigned()->index();

@@ -21,13 +21,15 @@ class User
             'name' => $attributes['name'],
             'email' => $attributes['email'],
             'password' => bcrypt($attributes['password']),
-            'verified' => 0,
-            'active' => 0
+            'verified' => $attributes['verified'] ? 1 : 0,
+            'active' => $attributes['active'] ? 1 : 0
         ]);
 
         $user->profile()->create([]);
 
-        static::createVerificationCode($user);
+        if (!$attributes['verified']) {
+            static::createVerificationCode($user);
+        }
 
         return $user;
     }

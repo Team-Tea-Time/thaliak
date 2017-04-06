@@ -1,6 +1,6 @@
 <?php
 
-namespace Thaliak\Http\Controllers\Api\World;
+namespace Thaliak\Http\Controllers\Api;
 
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Request;
@@ -41,19 +41,27 @@ class CharactersController extends Controller
 
     public function search(Request $request): Collection
     {
-        $this->validate($request, ['name' => 'required|string']);
+        $this->validate($request, [
+            'name' => 'required|string',
+            'world_id' => 'required|exists:worlds,id'
+        ]);
 
         return $this->lodestone->searchCharacter(
             $request->name,
-            $request->route('world')->name
+            World::find($request->world_id)
         );
     }
 
     public function add(Request $request): Character
     {
         $this->validate($request,
-            ['id' => 'required|numeric|unique:characters'],
-            ['id.unique' => 'This character has already been added.']
+            [
+                'id' => 'required|numeric|unique:characters',
+                'world_id' => 'required|exists:worlds,id'
+            ],
+            [
+                'id.unique' => 'This character has already been added.'
+            ]
         );
 
         $lodestone = $this->lodestone->getCharacter($request->id);
@@ -65,7 +73,7 @@ class CharactersController extends Controller
         $character = Character::createFromLodestone(
             $lodestone,
             $request->user(),
-            $request->route('world')
+            World::find($request->world_id)
         );
         $character->createVerificationCode();
 
@@ -89,6 +97,8 @@ class CharactersController extends Controller
         if (!str_contains($lodestone->introduction, $request->code)) {
             return response(['code' => ['Verification failed. Please check the profile and try again.']], 422);
         }
+
+        $request->character->profile()->create([]);
 
         return $request->character->verify();
     }

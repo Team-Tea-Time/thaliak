@@ -12,4 +12,16 @@ class World extends Model
      * @var bool
      */
     public $timestamps = false;
+
+    /**
+     * The accessors to append to the model's array form.
+     *
+     * @var array
+     */
+    protected $appends = ['name_lowercase'];
+
+    public function getNameLowercaseAttribute(): String
+    {
+        return strtolower($this->name);
+    }
 }

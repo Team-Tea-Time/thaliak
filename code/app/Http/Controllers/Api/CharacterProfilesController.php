@@ -1,6 +1,6 @@
 <?php
 
-namespace Thaliak\Http\Controllers\Api\World;
+namespace Thaliak\Http\Controllers\Api;
 
 use Illuminate\Http\Request;
 use Thaliak\Http\Controllers\Controller;

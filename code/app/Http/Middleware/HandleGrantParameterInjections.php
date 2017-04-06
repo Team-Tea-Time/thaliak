@@ -11,8 +11,8 @@ use Laravel\Passport\ClientRepository;
 
 class HandleGrantParameterInjections
 {
-    protected $clients;     // ClientRepository
-    protected $encrypter;   // Encrypter
+    protected $clients;
+    protected $encrypter;
 
     public function __construct(ClientRepository $clients, Encrypter $encrypter)
     {

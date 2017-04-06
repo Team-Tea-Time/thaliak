@@ -65,7 +65,7 @@ Route::group(['namespace' => 'Thaliak\Http\Controllers\Api'], function (Router $
     });
 
     // Password resetting
-    Route::group(['prefix' => 'auth/password'], function (Router $r) {
+    $r->group(['prefix' => 'auth/password'], function (Router $r) {
         $r->post('reset/request', 'PasswordResetController@request');
         $r->post('reset', 'PasswordResetController@reset');
     });

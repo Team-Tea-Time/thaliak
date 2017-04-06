@@ -17,13 +17,17 @@ class User
 {
     public static function create(Array $attributes): UserModel
     {
-        $user = UserModel::create([
-            'name' => $attributes['name'],
-            'email' => $attributes['email'],
-            'password' => bcrypt($attributes['password']),
-            'verified' => $attributes['verified'] ? 1 : 0,
-            'active' => $attributes['active'] ? 1 : 0
-        ]);
+        $attributes += [
+            'name' => null,
+            'email' => null,
+            'password' => null,
+            'verified' => 0,
+            'active' => 0
+        ];
+
+        $attributes['password'] = bcrypt($attributes['password']);
+
+        $user = UserModel::create($attributes);
 
         $user->profile()->create([]);
 

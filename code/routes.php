@@ -3,7 +3,7 @@
 use Illuminate\Routing\Router;
 
 // Thaliak API
-Route::group(['namespace' => 'Thaliak\Http\Controllers\Api'], function (Router $r) {
+Route::group(['namespace' => 'Thaliak\Http\Controllers'], function (Router $r) {
     // Users
     $r->group(['prefix' => 'users'], function (Router $r) {
         $r->get('/', 'UsersController@index');

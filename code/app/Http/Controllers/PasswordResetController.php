@@ -1,9 +1,8 @@
 <?php
 
-namespace Thaliak\Http\Controllers\Api;
+namespace Thaliak\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Thaliak\Http\Controllers\Controller;
 use Thaliak\Models\PasswordReset;
 use Thaliak\Models\User;
 use Thaliak\Support\User as UserSupport;

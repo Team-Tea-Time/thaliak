@@ -1,6 +1,6 @@
 <?php
 
-namespace Thaliak\Http\Controllers\Api;
+namespace Thaliak\Http\Controllers;
 
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -8,7 +8,6 @@ use Illuminate\Support\Collection;
 use Illuminate\Validation\Rule;
 use Laravel\Socialite\Two\AbstractProvider;
 use Socialite;
-use Thaliak\Http\Controllers\Controller;
 use Thaliak\Models\OAuthDriver;
 use Thaliak\Models\OAuthUser;
 use Thaliak\Models\User;

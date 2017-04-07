@@ -1,12 +1,11 @@
 <?php
 
-namespace Thaliak\Http\Controllers\Api;
+namespace Thaliak\Http\Controllers;
 
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Hash;
-use Thaliak\Http\Controllers\Controller;
 use Thaliak\Models\User;
 use Thaliak\Support\User as UserSupport;
 
@@ -14,7 +13,7 @@ class UsersController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('api-auth', ['except' => ['create', 'verify', 'getByName']]);
+        $this->middleware('auth:api', ['except' => ['create', 'verify', 'getByName']]);
         $this->middleware('guest', ['only' => ['create', 'verify']]);
     }
 

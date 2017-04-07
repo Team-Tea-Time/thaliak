@@ -38,7 +38,7 @@ class RouteServiceProvider extends ServiceProvider
 
     public function map()
     {
-        Route::group(['middleware' => 'api'], function ($router) {
+        Route::group(['middleware' => ['throttle:60,1', 'bindings']], function ($router) {
             require base_path('routes.php');
         });
     }

@@ -1,16 +1,15 @@
 <?php
 
-namespace Thaliak\Http\Controllers\Api;
+namespace Thaliak\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Thaliak\Http\Controllers\Controller;
 use Thaliak\Models\UserProfile;
 
 class UserProfilesController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('api-auth');
+        $this->middleware('auth:api');
     }
 
     public function save(Request $request): UserProfile

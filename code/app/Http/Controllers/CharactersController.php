@@ -1,12 +1,11 @@
 <?php
 
-namespace Thaliak\Http\Controllers\Api;
+namespace Thaliak\Http\Controllers;
 
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Storage;
-use Thaliak\Http\Controllers\Controller;
 use Thaliak\Http\Lodestone\Api;
 use Thaliak\Models\Character;
 use Thaliak\Models\World;
@@ -17,7 +16,7 @@ class CharactersController extends Controller
 
     public function __construct(Api $lodestone)
     {
-        $this->middleware('api-auth', ['except' => ['index', 'get', 'search']]);
+        $this->middleware('auth:api', ['except' => ['index', 'get', 'search']]);
         $this->lodestone = $lodestone;
     }
 

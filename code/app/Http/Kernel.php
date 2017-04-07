@@ -23,25 +23,7 @@ class Kernel extends HttpKernel
      *
      * @var array
      */
-    protected $middlewareGroups = [
-        'web' => [
-            \Thaliak\Http\Middleware\EncryptCookies::class,
-            \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
-            \Illuminate\Session\Middleware\StartSession::class,
-            \Illuminate\View\Middleware\ShareErrorsFromSession::class,
-            \Thaliak\Http\Middleware\VerifyCsrfToken::class,
-            \Illuminate\Routing\Middleware\SubstituteBindings::class,
-        ],
-
-        'api' => [
-            'throttle:60,1',
-            'bindings'
-        ],
-
-        'api-auth' => [
-            'auth:api'
-        ]
-    ];
+    protected $middlewareGroups = [];
 
     /**
      * The application's route middleware.
@@ -55,9 +37,6 @@ class Kernel extends HttpKernel
         'auth.basic' => \Illuminate\Auth\Middleware\AuthenticateWithBasicAuth::class,
         'bindings' => \Illuminate\Routing\Middleware\SubstituteBindings::class,
         'can' => \Illuminate\Auth\Middleware\Authorize::class,
-        'guest' => \Thaliak\Http\Middleware\RedirectIfAuthenticated::class,
-        'attach-token-cookie' => \Thaliak\Http\Middleware\AttachTokenCookie::class,
-        'extract-token-from-cookie' => \Thaliak\Http\Middleware\ExtractTokenFromCookie::class,
         'handle-grant-injections' => \Thaliak\Http\Middleware\HandleGrantParameterInjections::class,
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
     ];
@@ -72,7 +51,6 @@ class Kernel extends HttpKernel
     protected $middlewarePriority = [
         \Illuminate\Session\Middleware\StartSession::class,
         \Illuminate\View\Middleware\ShareErrorsFromSession::class,
-        \Thaliak\Http\Middleware\ExtractTokenFromCookie::class,
         \Illuminate\Auth\Middleware\Authenticate::class,
         \Illuminate\Routing\Middleware\SubstituteBindings::class,
         \Illuminate\Auth\Middleware\Authorize::class,

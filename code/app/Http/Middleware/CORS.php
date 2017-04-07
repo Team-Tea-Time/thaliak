@@ -7,13 +7,6 @@ use Thaliak\Models\World;
 
 class CORS
 {
-    /**
-     * Handle an incoming request.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Closure  $next
-     * @return mixed
-     */
     public function handle($request, Closure $next)
     {
         $hostname = config('app.frontend_root_hostname');
@@ -26,7 +19,7 @@ class CORS
         $response = $next($request);
         $response->headers->set('Access-Control-Allow-Origin', $origin);
         $response->headers->set('Access-Control-Allow-Headers', 'Authorization, Content-Type');
-        $response->headers->set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+        $response->headers->set('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
         return $response;
     }
 }

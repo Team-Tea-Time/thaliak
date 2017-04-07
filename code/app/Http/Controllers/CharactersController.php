@@ -12,7 +12,7 @@ use Thaliak\Models\World;
 
 class CharactersController extends Controller
 {
-    private $lodestone; // Api
+    private $lodestone;
 
     public function __construct(Api $lodestone)
     {
@@ -89,7 +89,7 @@ class CharactersController extends Controller
         return $character->load('verification');
     }
 
-    public function verify(Request $request): Character
+    public function verify(Request $request)
     {
         $lodestone = $this->lodestone->getCharacter($request->character->id);
 

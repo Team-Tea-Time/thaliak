@@ -69,18 +69,11 @@ class UsersController extends Controller
 
     public function characters(Request $request): Collection
     {
-        $query = $request
+        return $request
             ->user
             ->characters()
-            ->with('verification', 'profile');
-
-        if ($request->world_id) {
-            $this->validate($request, ['world_id', 'exists:worlds,id']);
-            $world = World::find($request->world_id);
-            $query = $query->world($world);
-        }
-
-        return $query->get();
+            ->with('verification', 'profile')
+            ->get();
     }
 
     public function update(Request $request)

@@ -32,7 +32,7 @@ class RouteServiceProvider extends ServiceProvider
         });
 
         Route::bind('user_by_name', function ($name) {
-            return User::whereName(urldecode($name))->first();
+            return User::whereName(urldecode($name))->firstOrFail();
         });
     }
 

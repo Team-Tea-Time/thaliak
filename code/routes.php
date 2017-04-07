@@ -4,6 +4,16 @@ use Illuminate\Routing\Router;
 
 // Thaliak API
 Route::group(['namespace' => 'Thaliak\Http\Controllers'], function (Router $r) {
+    // Data Centres
+    $r->group(['prefix' => 'data-centres'], function (Router $r) {
+        $r->get('/', 'DataCentresController@index');
+    });
+
+    // Worlds
+    $r->group(['prefix' => 'worlds'], function (Router $r) {
+        $r->get('/', 'WorldsController@index');
+    });
+
     // Users
     $r->group(['prefix' => 'users'], function (Router $r) {
         $r->get('/', 'UsersController@index');

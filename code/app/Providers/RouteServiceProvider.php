@@ -34,19 +34,12 @@ class RouteServiceProvider extends ServiceProvider
         Route::bind('user_by_name', function ($name) {
             return User::whereName(urldecode($name))->first();
         });
-
-        Route::bind('world', function ($world) {
-            return World::whereName(ucfirst($world))->first();
-        });
     }
 
     public function map()
     {
-        Route::group([
-            'middleware' => 'api',
-            'prefix' => 'api'
-        ], function ($router) {
-            require base_path('routes/api.php');
+        Route::group(['middleware' => 'api'], function ($router) {
+            require base_path('routes.php');
         });
     }
 }

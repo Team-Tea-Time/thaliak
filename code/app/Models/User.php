@@ -85,7 +85,7 @@ class User extends Authenticatable
         return $builder->where('active', 1);
     }
 
-    public function scopeForAuth(Builder $builder, Int $authId): Builder
+    public function scopeForAuth(Builder $builder, String $authId): Builder
     {
         return $builder->whereHas('auths', function ($query) use ($authId) {
             $query->where('provider_user_id', $authId);
@@ -102,7 +102,7 @@ class User extends Authenticatable
         return implode(', ', $this->roles()->pluck('name')->toArray());
     }
 
-    public function findForPassport(String $identity): User
+    public function findForPassport(String $identity)
     {
         $builder = (!!filter_var($identity, FILTER_VALIDATE_EMAIL))
             ? $this->where('email', $identity)

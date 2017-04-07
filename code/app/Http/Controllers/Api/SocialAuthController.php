@@ -70,17 +70,12 @@ class SocialAuthController extends Controller
             $state['user_has_new_auth'] = true;
         }
 
-        $response = new JsonResponse(compact('user', 'state'));
-
+        $access_token = null;
         if (!$state['user_is_new'] && $user->active && $user->verified) {
-            $response->headers->setCookie(
-                $this->auth->createCookieForToken([
-                    'access_token' => $user->createToken("{$this->driver->capitalised_name} login")->accessToken
-                ])
-            );
+            $access_token = $user->createToken("{$this->driver->capitalised_name} login")->accessToken;
         }
 
-        return $response;
+        return new JsonResponse(compact('user', 'state', 'access_token'));
     }
 
     public function delete(Request $request): OAuthUser

@@ -1,8 +1,7 @@
 <?php
 
-namespace Thaliak\Http\Controllers\Api\World;
+namespace Thaliak\Http\Controllers\Api;
 
-use Cookie;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -71,12 +70,18 @@ class UsersController extends Controller
 
     public function characters(Request $request): Collection
     {
-        return $request
+        $query = $request
             ->user
             ->characters()
-            ->with('verification', 'profile')
-            ->world($request->route('world'))
-            ->get();
+            ->with('verification', 'profile');
+
+        if ($request->world_id) {
+            $this->validate($request, ['world_id', 'exists:worlds,id']);
+            $world = World::find($request->world_id);
+            $query = $query->world($world);
+        }
+
+        return $query->get();
     }
 
     public function update(Request $request)
@@ -126,7 +131,6 @@ class UsersController extends Controller
 
     public function clearToken(Request $request)
     {
-        Cookie::forget('auth');
         $request->user->token()->revoke();
     }
 

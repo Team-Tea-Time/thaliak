@@ -5,11 +5,12 @@ namespace Thaliak\Http\Lodestone;
 use Goutte\Client;
 use Illuminate\Support\Collection;
 use Symfony\Component\DomCrawler\Crawler;
+use Thaliak\Models\World;
 
 class Api
 {
-    protected $client;  // Client
-    protected $uri;     // String
+    protected $client;
+    protected $uri;
 
     public function __construct(Client $client)
     {
@@ -22,9 +23,9 @@ class Api
         return $this->client->request('GET', "{$this->uri}{$path}");
     }
 
-    public function searchCharacter(String $name, String $world): Collection
+    public function searchCharacter(String $name, World $world): Collection
     {
-        $crawler = $this->getCrawler("character/?q={$name}&worldname={$world}");
+        $crawler = $this->getCrawler("character/?q={$name}&worldname={$world->name}");
         $results = $crawler
             ->filter('.ldst__window .entry')
             ->each(function (Crawler $node, $i) use ($world) {

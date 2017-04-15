@@ -4,6 +4,23 @@ use Illuminate\Routing\Router;
 
 // Thaliak API
 Route::group(['namespace' => 'Thaliak\Http\Controllers'], function (Router $r) {
+    // Lodestone
+    $r->group(['prefix' => 'lodestone'], function (Router $r) {
+        $r->group(['prefix' => 'characters'], function (Router $r) {
+            $r->group(['prefix' => '{id}'], function (Router $r) {
+                $r->get('/', 'LodestoneController@getCharacter');
+            });
+            $r->get('/', 'LodestoneController@findCharacters');
+        });
+        $r->group(['prefix' => 'freecompanies'], function (Router $r) {
+            $r->group(['prefix' => '{id}'], function (Router $r) {
+                $r->get('/', 'LodestoneController@getFreeCompany');
+                $r->get('members', 'LodestoneController@getFreeCompanyMembers');
+            });
+            $r->get('/', 'LodestoneController@findFreeCompanies');
+        });        
+    });
+
     // Data Centres
     $r->group(['prefix' => 'data-centres'], function (Router $r) {
         $r->get('/', 'DataCentresController@index');

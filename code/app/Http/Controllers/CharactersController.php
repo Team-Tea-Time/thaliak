@@ -16,7 +16,7 @@ class CharactersController extends Controller
 
     public function __construct(Api $lodestone)
     {
-        $this->middleware('auth:api', ['except' => ['index', 'get', 'search']]);
+        $this->middleware('auth:api', ['except' => ['index', 'get']]);
         $this->lodestone = $lodestone;
     }
 
@@ -36,19 +36,6 @@ class CharactersController extends Controller
     public function get(Request $request): Character
     {
         return $request->character;
-    }
-
-    public function search(Request $request): Collection
-    {
-        $this->validate($request, [
-            'name' => 'required|string',
-            'world_id' => 'required|exists:worlds,id'
-        ]);
-
-        return $this->lodestone->searchCharacter(
-            $request->name,
-            World::find($request->world_id)
-        );
     }
 
     public function add(Request $request): Character

@@ -24,6 +24,7 @@ class Character
 
     // extended info
     public $portrait;       // String
+    public $introduction;   // String
     public $title;          // String
     public $race;           // String
     public $clan;           // String

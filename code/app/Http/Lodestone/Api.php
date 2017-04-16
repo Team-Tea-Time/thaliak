@@ -180,6 +180,9 @@ class Api
             // Portrait
             $character->portrait = trim($entry->filter('.character__view .character__detail__image img')->attr('src'));
 
+            // Introduction
+            $character->introduction = trim($entry->filter('.character__selfintroduction')->text());
+
             // Title
             $character->title = trim($entry->filter('.frame__chara__title')->text());
 

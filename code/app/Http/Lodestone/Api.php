@@ -60,27 +60,29 @@ class Api
      * @param String $name
      * @param String $worldname
      *
-     * @return Collection
+     * @return Collection|false
      */
-    public function findCharacters(String $name, String $worldname): Collection
+    public function findCharacters(String $name, String $worldname)
     {
         $crawler = $this->getCrawler("character/?q={$name}&worldname={$worldname}");
 
+        $crawler = $crawler->fitler('.ldst__contents .ldst__window');
+
         if (!$crawler->count()) {
-            return null;
+            return false;
         }
 
         $results = [];
 
-        foreach ($crawler->filter('.ldst__window .entry') as $domElement) {
+        foreach ($crawler->filter('.entry') as $domElement) {
             try {
                 $entry = new Crawler($domElement);
 
                 $character = new Character();
 
                 // ID 
-                $href = $entry->filter('.entry__link')->attr('href');
-                if (empty($href) || !preg_match('/\/(\d+)\/$/', $href, $matches)) {
+                $href = $entry->filter('.entry__link');
+                if (!$href->count() || !preg_match('/\/(\d+)\/$/', $href->attr('href'), $matches)) {
                     // If the ID isn't recognised then just throw an
                     // exception and get out of here
                     throw new \InvalidArgumentException('Character ID not recognized.');
@@ -124,7 +126,7 @@ class Api
             }
         }
 
-        return collect($results);
+        return count($results) ? collect($results) : false;
     }
 
     /**
@@ -140,28 +142,26 @@ class Api
      *
      * @param String $id
      *
-     * @return Character
+     * @return Character|false
      */
-    public function getCharacter(String $id): Character
+    public function getCharacter(String $id)
     {
         $crawler = $this->getCrawler("character/{$id}");
 
+        $crawler = $crawler->filter('.ldst__contents .ldst__window');
+
         if (!$crawler->count()) {
-            return null;
+            return false;
         }
 
-        $entry = $crawler->filter('.ldst__window');
-
-        if (!$entry->count()) {
-            return null;
-        }
+        $entry = $crawler->eq(0);
 
         $character = new Character();
 
         try {
             // ID 
-            $href = $entry->filter('.frame__chara__link')->attr('href');
-            if (empty($href) || !preg_match("/\/({$id})\/$/", $href, $matches)) {
+            $href = $entry->filter('.frame__chara__link');
+            if (!$href->count() || !preg_match("/\/({$id})\/$/", $href->attr('href'), $matches)) {
                 // If the ID isn't valid or doesn't match the id we've
                 // requested details for then just throw an exception
                 throw new \InvalidArgumentException('Character ID not recognized or does not match.');
@@ -276,27 +276,29 @@ class Api
      * @param String $name
      * @param String $worldname
      *
-     * @return Collection
+     * @return Collection|false
      */
-    public function findFreeCompanies(String $name, String $worldname): Collection
+    public function findFreeCompanies(String $name, String $worldname)
     {
         $crawler = $this->getCrawler("freecompany/?q={$name}&worldname={$worldname}");
 
+        $crawler = $crawler->filter('.ldst__contents .ldst__window');
+
         if (!$crawler->count()) {
-            return null;
+            return false;
         }
 
         $results = [];
 
-        foreach ($crawler->filter('.ldst__window .entry') as $domElement) {
+        foreach ($crawler->filter('.entry') as $domElement) {
             try {
                 $entry = new Crawler($domElement);
 
                 $freecompany = new FreeCompany();
 
                 // ID
-                $href = $entry->filter('.entry__block')->attr('href');
-                if (empty($href) || !preg_match('/\/(\d+)\/$/', $href, $matches)) {
+                $href = $entry->filter('.entry__block');
+                if (!$href->count() || !preg_match('/\/(\d+)\/$/', $href->attr('href'), $matches)) {
                     // If an invalid free company id then just throw
                     // an exception and get out of here
                     throw new \InvalidArgumentException('Free Company ID not recognized.');
@@ -330,7 +332,7 @@ class Api
             }
         }
 
-        return collect($results);
+        return count($results) ? collect($results) : false;
     }
 
     /**
@@ -339,31 +341,33 @@ class Api
      *
      * @param String $id
      *
-     * @return FreeCompany
+     * @return FreeCompany|false
      */
-    public function getFreeCompany(String $id): FreeCompany
+    public function getFreeCompany(String $id)
     {
         $crawler = $this->getCrawler("freecompany/{$id}");
 
+        $crawler = $crawler->filter('.ldst__contents .ldst__window');
+
         if (!$crawler->count()) {
-            return null;
+            return false;
         }
 
         // Free companies have two .ldst__window sections,
         // the first containing company information and the
         // second containing company activity/focus.
-        $entry = $crawler->filter('.ldst__window')->eq(0);
+        $entry = $crawler->eq(0);
 
         if (!$entry->count()) {
-            return null;
+            return false;
         }
 
         $freecompany = new FreeCompany();
 
         try {
             // ID 
-            $href = $entry->filter('.entry__freecompany')->attr('href');
-            if (empty($href) || !preg_match("/\/({$id})\/$/", $href, $matches)) {
+            $href = $entry->filter('.entry__freecompany');
+            if (!$href->count() || !preg_match("/\/({$id})\/$/", $href->attr('href'), $matches)) {
                 // If the ID isn't valid or doesn't match the id we've
                 // requested details for then throw an exception
                 throw new \InvalidArgumentException('Free Company ID not recognized or does not match.');
@@ -431,7 +435,7 @@ class Api
 
             // We now need to process the second .ldst__window section
             // for the company focus and activity.
-            $entry = $crawler->filter('.ldst__window')->eq(1);
+            $entry = $crawler->eq(1);
 
             if ($entry->count()) {
                 // Activity and Recruitment
@@ -466,6 +470,7 @@ class Api
             }
         } catch (\Exception $e) {
             // TODO: Error handling
+            return false;
         }
 
         return $freecompany;
@@ -482,9 +487,9 @@ class Api
      *
      * @param String $id
      * 
-     * @return Collection
+     * @return Collection|false
      */
-    public function getFreeCompanyMembers(String $id): Collection
+    public function getFreeCompanyMembers(String $id)
     {
         $results = [];
 
@@ -493,33 +498,30 @@ class Api
         do {
             $crawler = $this->getCrawler("freecompany/{$id}/member/?page={$page}");
 
+            $crawler = $crawler->filter('.ldst__contents .ldst__window');
+
+            if (!$crawler->count()) {
+                break;
+            }
+
             // Validate the ID
-            $href = $crawler->filter('.ldst__window .entry__freecompany')->attr('href');
-            if (empty($href) || !preg_match("/\/({$id})\/$/", $href, $matches)) {
+            $href = $crawler->filter('.entry__freecompany');
+            if (!$href->count() || !preg_match("/\/({$id})\/$/", $href->attr('href'), $matches)) {
                 // If the ID isn't valid or doesn't match the id we've
                 // requested details for then just bail
                 break;
             }
-            // $freecompany->id = $id;
-
-            // Get the member entries for this page
-            $entries = $crawler->filter('.ldst__window li.entry');
-
-            // If there's no members entries then just bail
-            if (!$entries->count()) {
-                break;
-            }
 
             // Process the member list on the current page
-            foreach ($entries as $domElement) {
+            foreach ($crawler->filter('li.entry') as $domElement) {
                 try {
                     $entry = new Crawler($domElement);
 
                     $member = new FreeCompanyMember();
 
                     // ID
-                    $href = $entry->filter('.entry__bg')->attr('href');
-                    if (empty($href) || !preg_match("/\/(\d+)\/$/", $href, $matches)) {
+                    $href = $entry->filter('.entry__bg');
+                    if (!$href->count() || !preg_match("/\/(\d+)\/$/", $href->attr('href'), $matches)) {
                         // If the ID isn't valid or doesn't match the id we've
                         // requested details for then throw an exception
                         throw new \InvalidArgumentException('Character ID for the free company member not recognized.');
@@ -549,6 +551,6 @@ class Api
             }
         } while (++$page <= $pages);
 
-        return collect($results);
+        return count($results) ? collect($results) : false;
     }
 }

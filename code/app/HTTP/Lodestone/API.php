@@ -113,7 +113,7 @@ class API
                     $character->free_company = [
                         'id' => trim($matches[1]),
                         'crest' => $fc->filter('.list__ic__crest img')->each(function (Crawler $node) {
-                            return trim($node->attr('src'));
+                            return $node->attr('src');
                         }),
                         'name' => trim($fc->filter('span')->text()),
                         'rank' => null
@@ -148,13 +148,7 @@ class API
     {
         $crawler = $this->getCrawler("character/{$id}");
 
-        $crawler = $crawler->filter('.ldst__contents .ldst__window');
-
-        if (!$crawler->count()) {
-            return false;
-        }
-
-        $entry = $crawler->eq(0);
+        $entry = $crawler->filter('#character');
 
         $character = new Character();
 
@@ -169,7 +163,7 @@ class API
             $character->id = $id;
 
             // Avatar
-            $character->avatar = trim($entry->filter('.frame__chara__face img')->attr('src'));
+            $character->avatar = $entry->filter('.frame__chara__face img')->attr('src');
 
             // Name
             $character->name = trim($entry->filter('.frame__chara__name')->text());
@@ -178,13 +172,16 @@ class API
             $character->world = trim($entry->filter('.frame__chara__world')->text());
 
             // Portrait
-            $character->portrait = trim($entry->filter('.character__view .character__detail__image img')->attr('src'));
+            $character->portrait = $entry->filter('.character__view .character__detail__image img')->attr('src');
 
             // Introduction
             $character->introduction = trim($entry->filter('.character__selfintroduction')->text());
 
             // Title
-            $character->title = trim($entry->filter('.frame__chara__title')->text());
+            $title = $entry->filter('.frame__chara__title');
+            if ($title->count()) {
+                $character->title = trim($title->text());
+            }
 
             // Profile blocks
             $entry->filter('.character__profile__data__detail .character-block__title')->each(function (Crawler $node) use (&$character) {
@@ -227,7 +224,7 @@ class API
                 $character->free_company = [
                     'id' => trim($matches[1]),
                     'crest' => $entry->filter('.character__freecompany__crest__image img')->each(function (Crawler $node) {
-                        return trim($node->attr('src'));
+                        return $node->attr('src');
                     }),
                     'name' => trim($fc->filter('a')->text())
                 ];
@@ -305,9 +302,9 @@ class API
                 }
                 $fc->id = trim($matches[1]);
 
-                // Crest - made up of 3 overlayed images
+                // Crest - made up of 3 overlaid images
                 $fc->crest = $entry->filter('.entry__freecompany__crest__image img')->each(function (Crawler $node) {
-                    return trim($node->attr('src'));
+                    return $node->attr('src');
                 });
 
                 // Name
@@ -320,11 +317,11 @@ class API
                 $fc->grand_company = trim($entry->filter('.entry__world')->eq(0)->text());
 
                 // Active Members
-                $fc->activemembers = intval($entry->filter('.entry__freecompany__fc-member')->text());
+                $fc->active_members = intval($entry->filter('.entry__freecompany__fc-member')->text());
 
                 // Date Formed
                 preg_match('/ldst_strftime\((\d+),/', $entry->filter('.entry__freecompany__fc-day')->text(), $matches);
-                $fc->dateformed = isset($matches[1]) ? $matches[1] : 'n/a';
+                $fc->date_formed = isset($matches[1]) ? $matches[1] : 'n/a';
 
                 $results[] = $fc;
             } catch (\Exception $e) {
@@ -376,7 +373,7 @@ class API
 
             // Crest - made up of 3 overlaid images
             $fc->crest = $entry->filter('.entry__freecompany__crest__image img')->each(function (Crawler $node) {
-                return trim($node->attr('src'));
+                return $node->attr('src');
             });
 
             // Name
@@ -402,11 +399,11 @@ class API
                     // a javascript function ldst_strftime()
                     case 'Formed':
                         preg_match('/ldst_strftime\((\d+),/', $node->nextAll()->text(), $matches);
-                        $fc->dateformed = isset($matches[1]) ?  intval($matches[1]) : 'n/a';
+                        $fc->date_formed = isset($matches[1]) ?  intval($matches[1]) : 'n/a';
                         break;
                     // Number of members
                     case 'Active Members':
-                        $fc->activemembers = intval($node->nextAll()->text());
+                        $fc->active_members = intval($node->nextAll()->text());
                         break;
                     // Rank
                     case 'Rank':

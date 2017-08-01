@@ -8,8 +8,8 @@ namespace Thaliak\HTTP\Lodestone;
  * Basic info is populated by all methods.
  *
  * Extended info is only populated when requesting free
- * company details and search method/s will leave these 
- * properties blank/null. 
+ * company details and search method/s will leave these
+ * properties blank/null.
  */
 class FreeCompany
 {
@@ -18,9 +18,9 @@ class FreeCompany
     public $crest;              // Array (string)
     public $name;               // String
     public $world;              // String
-    public $grandcompany;       // String
-    public $activemembers;      // Int
-    public $dateformed;         // Int/Timestamp
+    public $grand_company;      // String
+    public $active_members;     // Int
+    public $date_formed;        // Int/Timestamp
 
     // extended information
     public $tag;                // String
@@ -44,6 +44,6 @@ class FreeCompany
 
     public function __toString()
     {
-        return "{$this->name}";
+        return $this->name;
     }
 }

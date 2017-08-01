@@ -101,7 +101,7 @@ class API
                 // Grand Company (optional)
                 $gc = $entry->filter('.js__tooltip');
                 if ($gc->count() && preg_match('/(.*)\/(.*)/', $gc->attr('data-tooltip'), $matches)) {
-                    $character->grandcompany = [
+                    $character->grand_company = [
                         'name' => trim($matches[1]),
                         'rank' => trim($matches[2])
                     ];
@@ -110,7 +110,7 @@ class API
                 // Free Company (optional)
                 $fc = $entry->filter('.entry__freecompany__link');
                 if ($fc->count() && preg_match('/\/(\d+)\/$/', $fc->attr('href'), $matches)) {
-                    $character->freecompany = [
+                    $character->free_company = [
                         'id' => trim($matches[1]),
                         'crest' => $fc->filter('.list__ic__crest img')->each(function (Crawler $node) {
                             return trim($node->attr('src'));
@@ -207,12 +207,12 @@ class API
                         break;
                     // City-state
                     case 'City-state':
-                        $character->citystate = trim($node->nextAll()->text());
+                        $character->city_state = trim($node->nextAll()->text());
                         break;
                     // Grand Company (optional)
                     case 'Grand Company':
                         if (preg_match('/(.*)\/(.*)/', $node->nextAll()->text(), $matches)) {
-                            $character->grandcompany = [
+                            $character->grand_company = [
                                 'name' => trim($matches[1]),
                                 'rank' => trim($matches[2])
                             ];
@@ -224,7 +224,7 @@ class API
             // Free Company (optional)
             $fc = $entry->filter('.character__freecompany__name');
             if ($fc->count() && preg_match('/\/(\d+)\/$/', $fc->filter('a')->attr('href'), $matches)) {
-                $character->freecompany = [
+                $character->free_company = [
                     'id' => trim($matches[1]),
                     'crest' => $entry->filter('.character__freecompany__crest__image img')->each(function (Crawler $node) {
                         return trim($node->attr('src'));
@@ -236,10 +236,10 @@ class API
             // Active Class/Job - we can get the active class from the
             // equipped main hand (slot 0) and we can tell if it's an
             // actual job from an equipped soul crystal (slot 12)
-            $character->activeclass = trim(explode('\'', $entry->filter('.db-tooltip__item__category')->eq(0)->text())[0]);
+            $character->active_class = trim(explode('\'', $entry->filter('.db-tooltip__item__category')->eq(0)->text())[0]);
             $soul = $entry->filter('.db-tooltip__item__name')->eq(12);
             if ($soul->count() && preg_match('/Soul of the (\w+)/', $soul->text(), $matches)) {
-                $character->activeclass = trim($matches[1]);
+                $character->active_class = trim($matches[1]);
             }
 
             // All class levels, with current and max xp
@@ -294,7 +294,7 @@ class API
             try {
                 $entry = new Crawler($domElement);
 
-                $freecompany = new FreeCompany();
+                $fc = new FreeCompany();
 
                 // ID
                 $href = $entry->filter('.entry__block');
@@ -303,30 +303,30 @@ class API
                     // an exception and get out of here
                     throw new \InvalidArgumentException('Free Company ID not recognized.');
                 }
-                $freecompany->id = trim($matches[1]);
+                $fc->id = trim($matches[1]);
 
                 // Crest - made up of 3 overlayed images
-                $freecompany->crest = $entry->filter('.entry__freecompany__crest__image img')->each(function (Crawler $node) {
+                $fc->crest = $entry->filter('.entry__freecompany__crest__image img')->each(function (Crawler $node) {
                     return trim($node->attr('src'));
                 });
 
                 // Name
-                $freecompany->name = trim($entry->filter('.entry__name')->text());
+                $fc->name = trim($entry->filter('.entry__name')->text());
 
                 // World
-                $freecompany->world = trim($entry->filter('.entry__world')->eq(1)->text());
+                $fc->world = trim($entry->filter('.entry__world')->eq(1)->text());
 
                 // Grand Company
-                $freecompany->grandcompany = trim($entry->filter('.entry__world')->eq(0)->text());
+                $fc->grand_company = trim($entry->filter('.entry__world')->eq(0)->text());
 
                 // Active Members
-                $freecompany->activemembers = intval($entry->filter('.entry__freecompany__fc-member')->text());
+                $fc->activemembers = intval($entry->filter('.entry__freecompany__fc-member')->text());
 
                 // Date Formed
                 preg_match('/ldst_strftime\((\d+),/', $entry->filter('.entry__freecompany__fc-day')->text(), $matches);
-                $freecompany->dateformed = isset($matches[1]) ? $matches[1] : 'n/a';
+                $fc->dateformed = isset($matches[1]) ? $matches[1] : 'n/a';
 
-                $results[] = $freecompany;
+                $results[] = $fc;
             } catch (\Exception $e) {
                 // TODO: Error handling
             }
@@ -362,7 +362,7 @@ class API
             return false;
         }
 
-        $freecompany = new FreeCompany();
+        $fc = new FreeCompany();
 
         try {
             // ID
@@ -372,62 +372,62 @@ class API
                 // requested details for then throw an exception
                 throw new \InvalidArgumentException('Free Company ID not recognized or does not match.');
             }
-            $freecompany->id = $id;
+            $fc->id = $id;
 
-            // Crest - made up of 3 overlayed images
-            $freecompany->crest = $entry->filter('.entry__freecompany__crest__image img')->each(function (Crawler $node) {
+            // Crest - made up of 3 overlaid images
+            $fc->crest = $entry->filter('.entry__freecompany__crest__image img')->each(function (Crawler $node) {
                 return trim($node->attr('src'));
             });
 
             // Name
-            $freecompany->name = trim($entry->filter('.freecompany__text__name')->text());
+            $fc->name = trim($entry->filter('.freecompany__text__name')->text());
 
             // World
-            $freecompany->world = trim($entry->filter('.entry__freecompany__gc')->eq(1)->text());
+            $fc->world = trim($entry->filter('.entry__freecompany__gc')->eq(1)->text());
 
             // Grand Company
             $gc = $entry->filter('.entry__freecompany__gc')->eq(0);
             if ($gc->count() && preg_match('/^([A-Z][A-Za-z ]+)\s+</', $gc->text(), $matches)) {
-                $freecompany->grandcompany = $matches[1];
+                $fc->grand_company = $matches[1];
             }
 
             // Profile blocks
-            $entry->filter('.heading--lead')->each(function (Crawler $node) use (&$freecompany) {
+            $entry->filter('.heading--lead')->each(function (Crawler $node) use (&$fc) {
                 switch (trim($node->text())) {
                     // Company Slogan
                     case 'Company Slogan':
-                        $freecompany->slogan = trim($node->nextAll()->text());
+                        $fc->slogan = trim($node->nextAll()->text());
                         break;
                     // Date formed - timestamp grabbed from a call to
                     // a javascript function ldst_strftime()
                     case 'Formed':
                         preg_match('/ldst_strftime\((\d+),/', $node->nextAll()->text(), $matches);
-                        $freecompany->dateformed = isset($matches[1]) ?  intval($matches[1]) : 'n/a';
+                        $fc->dateformed = isset($matches[1]) ?  intval($matches[1]) : 'n/a';
                         break;
                     // Number of members
                     case 'Active Members':
-                        $freecompany->activemembers = intval($node->nextAll()->text());
+                        $fc->activemembers = intval($node->nextAll()->text());
                         break;
                     // Rank
                     case 'Rank':
-                        $freecompany->rank = intval($node->nextAll()->text());
+                        $fc->rank = intval($node->nextAll()->text());
                         break;
                 }
             });
 
             // Company Tag - between « and »
-            $freecompany->tag = trim(str_replace(['«','»'], '', $entry->filter('.freecompany__text.freecompany__text__tag')->text()));
+            $fc->tag = trim(str_replace(['«','»'], '', $entry->filter('.freecompany__text.freecompany__text__tag')->text()));
 
             // Reputation/Standing
-            $freecompany->standing = [];
-            $entry->filter('.freecompany__reputation .freecompany__reputation__gcname')->each(function (Crawler $node) use (&$freecompany) {
+            $fc->standing = [];
+            $entry->filter('.freecompany__reputation .freecompany__reputation__gcname')->each(function (Crawler $node) use (&$fc) {
                 $name = trim($node->text());
                 $standing = trim($node->nextAll()->text());
-                $freecompany->standing[$name] = $standing;
+                $fc->standing[$name] = $standing;
             });
 
             // Estate Profile
-            $freecompany->estate = [
+            $fc->estate = [
                 'name' => trim($entry->filter('.freecompany__estate__name')->text()),
                 'address' => trim($entry->filter('.freecompany__estate__text')->text()),
                 'greeting' => trim($entry->filter('.freecompany__estate__greeting')->text())
@@ -439,13 +439,13 @@ class API
 
             if ($entry->count()) {
                 // Activity and Recruitment
-                $entry->filter('.heading--lead')->each(function (Crawler $node) use (&$freecompany) {
+                $entry->filter('.heading--lead')->each(function (Crawler $node) use (&$fc) {
                     switch (trim($node->text())) {
                         case 'Active':
-                            $freecompany->active = trim($node->nextAll()->text());
+                            $fc->active = trim($node->nextAll()->text());
                             break;
                         case 'Recruitment':
-                            $freecompany->recruitment = trim($node->nextAll()->text());
+                            $fc->recruitment = trim($node->nextAll()->text());
                             break;
                     }
                 });
@@ -457,15 +457,15 @@ class API
                 $focus = $entry->filter('ul.freecompany__focus_icon');
 
                 // Focus
-                $freecompany->focus = [];
-                $focus->eq(0)->filter('li')->each(function(Crawler $node) use (&$freecompany) {
-                    $freecompany->focus[strtolower(trim($node->filter('p')->text()))] = !in_array('freecompany__focus_icon--off', $node->extract('class'));
+                $fc->focus = [];
+                $focus->eq(0)->filter('li')->each(function(Crawler $node) use (&$fc) {
+                    $fc->focus[strtolower(trim($node->filter('p')->text()))] = !in_array('freecompany__focus_icon--off', $node->extract('class'));
                 });
 
                 // Seeking
-                $freecompany->seeking = [];
-                $focus->eq(1)->filter('li')->each(function(Crawler $node) use (&$freecompany) {
-                    $freecompany->seeking[strtolower(trim($node->filter('p')->text()))] = !in_array('freecompany__focus_icon--off', $node->extract('class'));
+                $fc->seeking = [];
+                $focus->eq(1)->filter('li')->each(function(Crawler $node) use (&$fc) {
+                    $fc->seeking[strtolower(trim($node->filter('p')->text()))] = !in_array('freecompany__focus_icon--off', $node->extract('class'));
                 });
             }
         } catch (\Exception $e) {
@@ -473,7 +473,7 @@ class API
             return false;
         }
 
-        return $freecompany;
+        return $fc;
     }
 
     /**

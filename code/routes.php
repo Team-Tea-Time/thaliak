@@ -10,15 +10,15 @@ Route::group(['namespace' => 'Thaliak\HTTP\Controllers'], function (Router $r) {
             $r->group(['prefix' => '{id}'], function (Router $r) {
                 $r->get('/', 'LodestoneController@getCharacter');
             });
-            $r->get('/', 'LodestoneController@findCharacters');
+            $r->post('search', 'LodestoneController@findCharacters');
         });
         $r->group(['prefix' => 'freecompanies'], function (Router $r) {
             $r->group(['prefix' => '{id}'], function (Router $r) {
                 $r->get('/', 'LodestoneController@getFreeCompany');
                 $r->get('members', 'LodestoneController@getFreeCompanyMembers');
             });
-            $r->get('/', 'LodestoneController@findFreeCompanies');
-        });        
+            $r->post('search', 'LodestoneController@findFreeCompanies');
+        });
     });
 
     // Data Centres

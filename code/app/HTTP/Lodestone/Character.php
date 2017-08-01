@@ -8,9 +8,9 @@ namespace Thaliak\HTTP\Lodestone;
  *
  * Basic info is populated by all methods.
  *
- * Extended info is only populated when requesting character 
+ * Extended info is only populated when requesting character
  * details and search method/s will leave these properties
- * blank/null. 
+ * blank/null.
  */
 class Character
 {
@@ -19,8 +19,8 @@ class Character
     public $avatar;         // String
     public $name;           // String
     public $world;          // String
-    public $grandcompany;   // Array (name, rank)
-    public $freecompany;    // Array (id, crest, name, rank)
+    public $grand_company;   // Array (name, rank)
+    public $free_company;    // Array (id, crest, name, rank)
 
     // extended info
     public $portrait;       // String
@@ -31,8 +31,8 @@ class Character
     public $gender;         // String
     public $nameday;        // String
     public $guardian;       // String
-    public $citystate;      // String
-    public $activeclass;    // String
+    public $city_state;      // String
+    public $active_class;    // String
     public $classes;        // Array (class => level)
 
     public function __construct(Array $data = [])

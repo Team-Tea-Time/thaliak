@@ -12,9 +12,9 @@ use Thaliak\Models\World;
 
 class LodestoneController extends Controller
 {
-    protected $lodestone; // Api
+    protected $lodestone;
 
-    public function __construct(Api $lodestone)
+    public function __construct(API $lodestone)
     {
         $this->middleware('auth:api');
         $this->lodestone = $lodestone;
@@ -43,7 +43,7 @@ class LodestoneController extends Controller
             $request->world_id ? World::find($request->world_id)->name : ''
         );
 
-        if (!$lodestone){
+        if (!$lodestone) {
             abort(404);
         }
 
@@ -64,7 +64,7 @@ class LodestoneController extends Controller
     public function getFreeCompanyMembers(Request $request)
     {
         $lodestone = $this->lodestone->getFreeCompanyMembers($request->id);
-    
+
         if (!$lodestone) {
             abort(404);
         }

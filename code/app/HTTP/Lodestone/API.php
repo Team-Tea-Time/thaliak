@@ -1,6 +1,6 @@
 <?php
 
-namespace Thaliak\Http\Lodestone;
+namespace Thaliak\HTTP\Lodestone;
 
 use Goutte\Client;
 use Illuminate\Support\Collection;
@@ -13,10 +13,10 @@ use Symfony\Component\DomCrawler\Crawler;
  * detailed profiles for characters and free companies.
  *
  * First, we use a Goutte client object to call the FFXIV
- * Lodestone website and return a Symfony crawler object for 
+ * Lodestone website and return a Symfony crawler object for
  * the returned HTML page.
- * 
- * Next, we use the crawler object to parse the relevant 
+ *
+ * Next, we use the crawler object to parse the relevant
  * character/free company entries and return an appropriately
  * populated character or free company object.
  *
@@ -25,7 +25,7 @@ use Symfony\Component\DomCrawler\Crawler;
  * bulk of the work and with the differences between character
  * and fc, there isn't an overall benefit at this time.
  */
-class Api
+class API
 {
     protected $client;
     protected $uri;
@@ -50,7 +50,7 @@ class Api
 
     /**
      * Return a collection of characters, populated with basic
-     * info, for all characters matching the given name and 
+     * info, for all characters matching the given name and
      * world.
      *
      * Lodestone will match all characters with $name in either
@@ -80,7 +80,7 @@ class Api
 
                 $character = new Character();
 
-                // ID 
+                // ID
                 $href = $entry->filter('.entry__link');
                 if (!$href->count() || !preg_match('/\/(\d+)\/$/', $href->attr('href'), $matches)) {
                     // If the ID isn't recognised then just throw an
@@ -114,7 +114,7 @@ class Api
                         'id' => trim($matches[1]),
                         'crest' => $fc->filter('.list__ic__crest img')->each(function (Crawler $node) {
                             return trim($node->attr('src'));
-                        }), 
+                        }),
                         'name' => trim($fc->filter('span')->text()),
                         'rank' => null
                     ];
@@ -137,7 +137,7 @@ class Api
      * free company and classes.
      *
      * Note: Mounts, minions, achievements, friends, etc, are
-     * not returned at this time, as there is currently no 
+     * not returned at this time, as there is currently no
      * requirement for those details within xiv.world.
      *
      * @param String $id
@@ -159,7 +159,7 @@ class Api
         $character = new Character();
 
         try {
-            // ID 
+            // ID
             $href = $entry->filter('.frame__chara__link');
             if (!$href->count() || !preg_match("/\/({$id})\/$/", $href->attr('href'), $matches)) {
                 // If the ID isn't valid or doesn't match the id we've
@@ -228,7 +228,7 @@ class Api
                     'id' => trim($matches[1]),
                     'crest' => $entry->filter('.character__freecompany__crest__image img')->each(function (Crawler $node) {
                         return trim($node->attr('src'));
-                    }),                  
+                    }),
                     'name' => trim($fc->filter('a')->text())
                 ];
             }
@@ -365,7 +365,7 @@ class Api
         $freecompany = new FreeCompany();
 
         try {
-            // ID 
+            // ID
             $href = $entry->filter('.entry__freecompany');
             if (!$href->count() || !preg_match("/\/({$id})\/$/", $href->attr('href'), $matches)) {
                 // If the ID isn't valid or doesn't match the id we've
@@ -452,7 +452,7 @@ class Api
 
                 // Details on company focus and seeking are found in
                 // two icon lists, the first for focus and second for
-                // seeking. In both instances the focus_icon--off class 
+                // seeking. In both instances the focus_icon--off class
                 // is used to determine if that option is on or off.
                 $focus = $entry->filter('ul.freecompany__focus_icon');
 
@@ -477,16 +477,16 @@ class Api
     }
 
     /**
-     * Return a collection of free company members, populated 
-     * with basic character info, for all members of the free 
+     * Return a collection of free company members, populated
+     * with basic character info, for all members of the free
      * company matching the given id.
      *
-     * The free company members are obtained by performing 
+     * The free company members are obtained by performing
      * successive paged lodestone requests to the members
      * endpoint.
      *
      * @param String $id
-     * 
+     *
      * @return Collection|false
      */
     public function getFreeCompanyMembers(String $id)
@@ -542,10 +542,10 @@ class Api
 
             // Attempt to get the current page of pages and
             // continue the loop with the next page if we
-            // haven't just processed the last page 
+            // haven't just processed the last page
             if (preg_match('/Page\s*(\d+)\s*of\s*(\d+)/', $crawler->filter('.btn__pager__current')->text(), $matches)) {
                 $page = intval($matches[1]);
-                $pages = intval($matches[2]);                
+                $pages = intval($matches[2]);
             } else {
                 break;
             }

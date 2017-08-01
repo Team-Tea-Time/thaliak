@@ -1,13 +1,13 @@
 <?php
 
-namespace Thaliak\Http\Controllers;
+namespace Thaliak\HTTP\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
-use Thaliak\Http\Controllers\Controller;
-use Thaliak\Http\Lodestone\Api;
-use Thaliak\Http\Lodestone\Character;
-use Thaliak\Http\Lodestone\FreeCompany;
+use Thaliak\HTTP\Controllers\Controller;
+use Thaliak\HTTP\Lodestone\API;
+use Thaliak\HTTP\Lodestone\Character;
+use Thaliak\HTTP\Lodestone\FreeCompany;
 use Thaliak\Models\World;
 
 class LodestoneController extends Controller

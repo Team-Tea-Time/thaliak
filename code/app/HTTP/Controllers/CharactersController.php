@@ -1,12 +1,12 @@
 <?php
 
-namespace Thaliak\Http\Controllers;
+namespace Thaliak\HTTP\Controllers;
 
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Storage;
-use Thaliak\Http\Lodestone\Api;
+use Thaliak\HTTP\Lodestone\API;
 use Thaliak\Models\Character;
 use Thaliak\Models\World;
 

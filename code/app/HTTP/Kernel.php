@@ -1,6 +1,6 @@
 <?php
 
-namespace Thaliak\Http;
+namespace Thaliak\HTTP;
 
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
 
@@ -14,7 +14,7 @@ class Kernel extends HttpKernel
      * @var array
      */
     protected $middleware = [
-        \Thaliak\Http\Middleware\CORS::class,
+        \Thaliak\HTTP\Middleware\CORS::class,
         \Illuminate\Foundation\Http\Middleware\CheckForMaintenanceMode::class,
     ];
 
@@ -37,7 +37,7 @@ class Kernel extends HttpKernel
         'auth.basic' => \Illuminate\Auth\Middleware\AuthenticateWithBasicAuth::class,
         'bindings' => \Illuminate\Routing\Middleware\SubstituteBindings::class,
         'can' => \Illuminate\Auth\Middleware\Authorize::class,
-        'handle-grant-injections' => \Thaliak\Http\Middleware\HandleGrantParameterInjections::class,
+        'handle-grant-injections' => \Thaliak\HTTP\Middleware\HandleGrantParameterInjections::class,
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
     ];
 

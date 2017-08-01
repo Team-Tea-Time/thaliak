@@ -1,6 +1,6 @@
 <?php
 
-namespace Thaliak\Http\Controllers;
+namespace Thaliak\HTTP\Controllers;
 
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Routing\Controller as BaseController;

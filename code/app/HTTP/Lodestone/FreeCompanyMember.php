@@ -1,6 +1,6 @@
 <?php
 
-namespace Thaliak\Http\Lodestone;
+namespace Thaliak\HTTP\Lodestone;
 
 /**
  * Convenience class used by the Lodestone API for returning

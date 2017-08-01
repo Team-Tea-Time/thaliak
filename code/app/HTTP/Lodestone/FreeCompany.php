@@ -1,6 +1,6 @@
 <?php
 
-namespace Thaliak\Http\Lodestone;
+namespace Thaliak\HTTP\Lodestone;
 
 /**
  * Convenience class for returning free company data.

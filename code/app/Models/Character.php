@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Slugify;
 use Spatie\MediaLibrary\HasMedia\HasMediaTrait;
 use Spatie\MediaLibrary\HasMedia\Interfaces\HasMedia;
-use Thaliak\Http\Lodestone\Character as LodestoneCharacter;
+use Thaliak\HTTP\Lodestone\Character as LodestoneCharacter;
 use Thaliak\Models\Enum\CharacterStatus;
 use Thaliak\Models\Traits\HasVerificationCodes;
 

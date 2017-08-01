@@ -1,6 +1,6 @@
 <?php
 
-namespace Thaliak\Http\Controllers;
+namespace Thaliak\HTTP\Controllers;
 
 use Illuminate\Http\Request;
 use Thaliak\Models\CharacterProfile;

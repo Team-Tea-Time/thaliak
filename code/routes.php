@@ -3,7 +3,7 @@
 use Illuminate\Routing\Router;
 
 // Thaliak API
-Route::group(['namespace' => 'Thaliak\Http\Controllers'], function (Router $r) {
+Route::group(['namespace' => 'Thaliak\HTTP\Controllers'], function (Router $r) {
     // Lodestone
     $r->group(['prefix' => 'lodestone'], function (Router $r) {
         $r->group(['prefix' => 'characters'], function (Router $r) {

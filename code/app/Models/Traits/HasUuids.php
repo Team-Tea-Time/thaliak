@@ -4,7 +4,7 @@ namespace Thaliak\Models\Traits;
 
 use Webpatser\Uuid\Uuid;
 
-trait HasUuids
+trait HasUUIDs
 {
     protected static function boot()
     {

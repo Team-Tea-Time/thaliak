@@ -1,6 +1,6 @@
 <?php
 
-namespace Thaliak\Http\Controllers;
+namespace Thaliak\HTTP\Controllers;
 
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Request;

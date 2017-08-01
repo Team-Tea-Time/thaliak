@@ -9,12 +9,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Passport\HasApiTokens;
-use Thaliak\Models\Traits\HasUuids;
+use Thaliak\Models\Traits\HasUUIDs;
 use Thaliak\Models\Traits\HasVerificationCodes;
 
 class User extends Authenticatable
 {
-    use HasApiTokens, HasUuids, HasVerificationCodes, Notifiable;
+    use HasApiTokens, HasUUIDs, HasVerificationCodes, Notifiable;
 
     /**
      * The attributes that are mass assignable.

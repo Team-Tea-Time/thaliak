@@ -1,6 +1,6 @@
 <?php
 
-namespace Thaliak\Http\Middleware;
+namespace Thaliak\HTTP\Middleware;
 
 use Closure;
 use Thaliak\Models\World;

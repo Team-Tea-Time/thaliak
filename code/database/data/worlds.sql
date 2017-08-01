@@ -70,12 +70,14 @@ INSERT INTO `worlds` (`id`, `data_centre_id`, `name`) VALUES
 	(56, 5, 'Ultros'),
 	(57, 6, 'Cerberus'),
 	(58, 6, 'Lich'),
-	(59, 6, 'Moogle'),
-	(60, 6, 'Odin'),
-	(61, 6, 'Phoenix'),
-	(62, 6, 'Ragnarok'),
-	(63, 6, 'Shiva'),
-	(64, 6, 'Zodiark');
+	(59, 6, 'Louisoix'),
+	(60, 6, 'Moogle'),
+	(61, 6, 'Odin'),
+	(62, 6, 'Omega'),
+	(63, 6, 'Phoenix'),
+	(64, 6, 'Ragnarok'),
+	(65, 6, 'Shiva'),
+	(66, 6, 'Zodiark');
 /*!40000 ALTER TABLE `worlds` ENABLE KEYS */;
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
 /*!40014 SET FOREIGN_KEY_CHECKS=IF(@OLD_FOREIGN_KEY_CHECKS IS NULL, 1, @OLD_FOREIGN_KEY_CHECKS) */;

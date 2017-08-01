@@ -112,7 +112,7 @@ class Character extends Model implements HasMedia
             'nameday'       => $character->nameday,
             'guardian'      => $character->guardian,
             'city_state'    => $character->city_state,
-            'active_class'  => $character->active_class['id'],
+            'active_class'  => $character->active_class,
             'status'        => CharacterStatus::ALT
         ]);
     }

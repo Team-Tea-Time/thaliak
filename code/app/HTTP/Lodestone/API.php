@@ -66,7 +66,7 @@ class API
     {
         $crawler = $this->getCrawler("character/?q={$name}&worldname={$worldname}");
 
-        $crawler = $crawler->fitler('.ldst__contents .ldst__window');
+        $crawler = $crawler->filter('.ldst__contents .ldst__window');
 
         if (!$crawler->count()) {
             return false;

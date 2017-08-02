@@ -86,7 +86,7 @@ class CharactersController extends Controller
 
         $request->character->profile()->create([]);
 
-        return $request->character->verify();
+        return $request->character->verify()->fresh('profile');
     }
 
     public function setMain(Request $request): Character

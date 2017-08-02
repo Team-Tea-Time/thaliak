@@ -18,7 +18,7 @@ services:
     container_name: thaliak-webserver
     image: phpdockerio/nginx:latest
     volumes:
-      - ${PWD-.}/code:/var/www/thaliak
+      - ${PWD-.}/code:/application
       - ${PWD-.}/nginx:/etc/nginx/conf.d
     ports:
       - "9000:80"
@@ -26,5 +26,5 @@ services:
     container_name: thaliak-php-fpm
     build: ${PWD-.}
     volumes:
-      - ${PWD-.}/code:/var/www/thaliak
+      - ${PWD-.}/code:/application
       - ${PWD-.}/php-fpm/php-ini-overrides.ini:/etc/php/7.1/fpm/conf.d/99-overrides.ini

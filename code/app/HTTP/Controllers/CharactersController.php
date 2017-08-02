@@ -76,7 +76,7 @@ class CharactersController extends Controller
         return $character->load('verification');
     }
 
-    public function verify(Request $request)
+    public function verify(Request $request): Character
     {
         $lodestone = $this->lodestone->getCharacter($request->character->id);
 

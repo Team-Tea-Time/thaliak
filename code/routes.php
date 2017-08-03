@@ -2,7 +2,6 @@
 
 use Illuminate\Routing\Router;
 
-// Thaliak API
 Route::group(['namespace' => 'Thaliak\HTTP\Controllers'], function (Router $r) {
     // Lodestone
     $r->group(['prefix' => 'lodestone'], function (Router $r) {
@@ -29,6 +28,7 @@ Route::group(['namespace' => 'Thaliak\HTTP\Controllers'], function (Router $r) {
     // Worlds
     $r->group(['prefix' => 'worlds'], function (Router $r) {
         $r->get('/', 'WorldsController@index');
+        $r->post('search', 'WorldsController@search');
     });
 
     // Users
@@ -75,6 +75,16 @@ Route::group(['namespace' => 'Thaliak\HTTP\Controllers'], function (Router $r) {
                 $r->delete('portrait', 'CharacterProfilesController@deletePortrait');
             });
         });
+    });
+
+    // Articles
+    $r->group(['prefix' => 'articles'], function (Router $r) {
+        $r->get('/', 'ArticlesController@index');
+        $r->get('{article}', 'ArticlesController@get');
+        $r->get('by-slug/{article_by_slug}', 'ArticlesController@getBySlug');
+        $r->post('/', 'ArticlesController@create');
+        $r->patch('{article}', 'ArticlesController@update');
+        $r->delete('{article}', 'ArticlesController@delete');
     });
 
     // Social auth

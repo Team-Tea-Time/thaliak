@@ -12,4 +12,10 @@ class WorldsController extends Controller
     {
         return World::all();
     }
+
+    public function search(Request $request): Collection
+    {
+        $this->validate($request, ['name' => 'required|string']);
+        return World::where('name', 'LIKE', "%{$request->name}%")->get();
+    }
 }

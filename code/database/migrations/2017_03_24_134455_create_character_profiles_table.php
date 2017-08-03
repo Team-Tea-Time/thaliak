@@ -15,9 +15,9 @@ class CreateCharacterProfilesTable extends Migration
     {
         Schema::create('character_profiles', function (Blueprint $table) {
             $table->increments('id');
-			$table->integer('character_id')->unsigned()->index();
-			$table->text('body')->nullable();
-			$table->timestamps();
+            $table->integer('character_id')->unsigned()->index();
+            $table->text('body')->nullable();
+            $table->timestamps();
 
             $table->foreign('character_id')
                   ->references('id')->on('characters')

@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 use Laravel\Passport\Passport;
 use Socialite;
+use Thaliak\Models\Article;
 use Thaliak\Models\Character;
 use Thaliak\Models\OAuthUser;
 use Thaliak\Models\User;
@@ -33,6 +34,14 @@ class RouteServiceProvider extends ServiceProvider
 
         Route::bind('user_by_name', function ($name) {
             return User::whereName(urldecode($name))->firstOrFail();
+        });
+
+        Route::bind('article', function ($id) {
+            return Article::findOrFail($id);
+        });
+
+        Route::bind('article_by_slug', function ($slug) {
+            return Article::whereSlug($slug)->firstOrFail();
         });
     }
 

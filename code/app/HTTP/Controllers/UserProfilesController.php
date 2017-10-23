@@ -33,7 +33,7 @@ class UserProfilesController extends Controller
                 ->addMediaFromUrl($request->avatar)
                 ->usingFileName('avatar')
                 ->usingName('avatar')
-                ->toMediaLibrary('images');
+                ->toMediaCollection('images');
         }
 
         return $profile->fresh();

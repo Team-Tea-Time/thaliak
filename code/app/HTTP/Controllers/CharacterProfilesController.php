@@ -35,7 +35,7 @@ class CharacterProfilesController extends Controller
                 ->addMediaFromUrl($request->portrait)
                 ->usingFileName('portrait')
                 ->usingName('profile_portrait')
-                ->toMediaLibrary('images');
+                ->toMediaCollection('images');
         }
 
         return $profile->fresh();

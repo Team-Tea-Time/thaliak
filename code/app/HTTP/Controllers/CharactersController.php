@@ -66,12 +66,12 @@ class CharactersController extends Controller
         $character
             ->addMediaFromUrl($lodestone->avatar)
             ->usingName('avatar')
-            ->toMediaLibrary('images');
+            ->toMediaCollection('images');
 
         $character
             ->addMediaFromUrl($lodestone->portrait)
             ->usingName('portrait')
-            ->toMediaLibrary('images');
+            ->toMediaCollection('images');
 
         return $character->load('verification');
     }

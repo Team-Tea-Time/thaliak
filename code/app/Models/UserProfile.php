@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Spatie\MediaLibrary\HasMedia\HasMediaTrait;
 use Spatie\MediaLibrary\HasMedia\Interfaces\HasMediaConversions;
+use Spatie\MediaLibrary\Media;
 
 class UserProfile extends Model implements HasMediaConversions
 {
@@ -48,7 +49,7 @@ class UserProfile extends Model implements HasMediaConversions
         return $avatar->getUrl('thumb');
     }
 
-    public function registerMediaConversions()
+    public function registerMediaConversions(Media $media = null)
     {
         $this->addMediaConversion('thumb')
               ->width(96)

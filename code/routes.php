@@ -87,6 +87,11 @@ Route::group(['namespace' => 'Thaliak\HTTP\Controllers'], function (Router $r) {
         $r->delete('{article}', 'ArticlesController@delete');
     });
 
+    // Notices
+    $r->group(['prefix' => 'notices'], function (Router $r) {
+        $r->get('/', 'NoticesController@index');
+    });
+
     // Social auth
     $r->get('social/drivers', 'SocialAuthController@drivers');
     $r->group(['prefix' => 'social/{provider}/auth'], function (Router $r) {

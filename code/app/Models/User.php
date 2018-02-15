@@ -3,14 +3,11 @@
 namespace Thaliak\Models;
 
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\{BelongsToMany, HasMany, HasOne};
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Passport\HasApiTokens;
-use Thaliak\Models\Traits\HasUUIDs;
-use Thaliak\Models\Traits\HasVerificationCodes;
+use Thaliak\Models\Traits\{HasUUIDs, HasVerificationCodes};
 
 class User extends Authenticatable
 {

@@ -33,7 +33,7 @@ class API
     public function __construct(Client $client)
     {
         $this->client = $client;
-        $this->uri = 'http://eu.finalfantasyxiv.com/lodestone/';
+        $this->uri = 'https://eu.finalfantasyxiv.com/lodestone/';
     }
 
     /**
@@ -62,10 +62,18 @@ class API
      *
      * @return Collection|false
      */
-    public function findCharacters(String $name, String $worldname)
+    public function findCharacters(String $name, String $worldname=null, $page=null)
     {
-        $crawler = $this->getCrawler("character/?q={$name}&worldname={$worldname}");
+        // Get the crawler for the character search results
+        $name = urlencode($name);
+        $worldname = urlencode($worldname);
+        $page = urlencode($page);
 
+        $crawler = $this->getCrawler(
+            "character/?q={$name}&worldname={$worldname}&page={$page}"
+        );
+
+        // Find the lodestone window element
         $crawler = $crawler->filter('.ldst__contents .ldst__window');
 
         if (!$crawler->count()) {
@@ -74,59 +82,111 @@ class API
 
         $results = [];
 
-        foreach ($crawler->filter('.entry') as $domElement) {
+        // Get the list of characters that have been returned by the
+        // lodestone api, with each character being found in a div
+        // with class="entry"
+        foreach ($crawler->filter('.entry') as $entry) {
             try {
-                $entry = new Crawler($domElement);
+                $c = new CharacterListing();
 
-                $character = new Character();
+                $entry = new Crawler($entry);
+                foreach ($entry->filter('a') as $node) {
+                    switch ($node->getAttribute('class')) {
+                        // character link
+                        case 'entry__link':
+                            // ID
+                            if (!preg_match('/\/(\d+)\/$/', $node->getAttribute('href'), $matches)) {
+                                throw new \InvalidArgumentException('Character ID not recognized.');
+                            }
+                            $c->id = $matches[1];
 
-                // ID
-                $href = $entry->filter('.entry__link');
-                if (!$href->count() || !preg_match('/\/(\d+)\/$/', $href->attr('href'), $matches)) {
-                    // If the ID isn't recognised then just throw an
-                    // exception and get out of here
-                    throw new \InvalidArgumentException('Character ID not recognized.');
+                            foreach($node->childNodes as $node) {
+                                switch ($node->getAttribute('class')) {
+                                    // Avatar
+                                    case 'entry__chara__face':
+                                        try {
+                                            $c->avatar = (new Crawler($node))->filter('img')->attr('src');
+                                        } catch (\Exception $e) {
+                                        }
+                                        break;
+
+                                    // name/world/gc box
+                                    case 'entry__box entry__box--world':
+                                        foreach($node->childNodes as $node) {
+                                            switch ($node->getAttribute('class')) {
+                                                // Name
+                                                case 'entry__name':
+                                                    $c->name = $node->textContent;
+                                                    break;
+
+                                                // World
+                                                case 'entry__world':
+                                                    $c->world = $node->textContent;
+                                                    break;
+
+                                                // Grand company
+                                                case 'entry__chara_info':
+                                                    try {
+                                                        $gc = (new Crawler($node))->filter('.js__tooltip')->attr('data-tooltip');
+                                                        $gc = explode('/', $gc);
+                                                        $c->grandcompany = [
+                                                            'name' => trim($gc[0]),
+                                                            'rank' => trim($gc[1])
+                                                        ];
+                                                    } catch (\Exception $e) {
+                                                    }
+                                                    break;
+                                            }
+                                        }
+                                        break;
+
+                                }
+                            }
+                            break;
+
+                        // free company link
+                        case 'entry__freecompany__link':
+                            if (preg_match('/\/(\d+)\/$/', $node->getAttribute('href'), $matches)) {
+                                // ID
+                                $c->freecompany['id'] = $matches[1];
+                                try {
+                                    // crest/name
+                                    $c->freecompany = [
+                                        'crest' => (new Crawler($node))->filter('.list__ic__crest img')->each(function (Crawler $node) {
+                                              return $node->attr('src');
+                                        }),
+                                        'name' => $node->getElementsByTagName('span')[0]->textContent
+                                    ];
+                                } catch (\Exception $e) {
+                                }
+                            }
+                            break;
+                    }
                 }
-                $character->id = trim($matches[1]);
 
-                // Avatar
-                $character->avatar = trim($entry->filter('.entry__chara__face img')->attr('src'));
-
-                // Name
-                $character->name = trim($entry->filter('.entry__name')->text());
-
-                // World
-                $character->world = trim($entry->filter('.entry__world')->text());
-
-                // Grand Company (optional)
-                $gc = $entry->filter('.js__tooltip');
-                if ($gc->count() && preg_match('/(.*)\/(.*)/', $gc->attr('data-tooltip'), $matches)) {
-                    $character->grand_company = [
-                        'name' => trim($matches[1]),
-                        'rank' => trim($matches[2])
-                    ];
-                }
-
-                // Free Company (optional)
-                $fc = $entry->filter('.entry__freecompany__link');
-                if ($fc->count() && preg_match('/\/(\d+)\/$/', $fc->attr('href'), $matches)) {
-                    $character->free_company = [
-                        'id' => trim($matches[1]),
-                        'crest' => $fc->filter('.list__ic__crest img')->each(function (Crawler $node) {
-                            return $node->attr('src');
-                        }),
-                        'name' => trim($fc->filter('span')->text()),
-                        'rank' => null
-                    ];
-                }
-
-                $results[] = $character;
+                $results[] = $c;
             } catch (\Exception $e) {
-                // TODO: Error handling
+                // TODO: Error handling - just skip to next for now
             }
         }
 
-        return count($results) ? collect($results) : false;
+        // Return results or empty array if no matches found
+        if (!empty($results)) {
+            try {
+                $pager = $crawler->filter('.btn__pager__current');
+                list($page, $pages) = explode(' of ', $pager->text());
+            } catch (\Except $e) {
+                $page = $pages = 1;
+            }
+
+            return [
+                'page' => (int)$page,
+                'pages' => (int)$pages,
+                'count' => count($results),
+                'results' => $results
+            ];
+        }
+        return [];
     }
 
     /**
@@ -148,117 +208,213 @@ class API
     {
         $crawler = $this->getCrawler("character/{$id}");
 
-        $entry = $crawler->filter('#character');
+        // Find the lodestone window element
+        $crawler = $crawler->filter('.ldst__contents .ldst__window');
 
-        $character = new Character();
-
-        try {
-            // ID
-            $href = $entry->filter('.frame__chara__link');
-            if (!$href->count() || !preg_match("/\/({$id})\/$/", $href->attr('href'), $matches)) {
-                // If the ID isn't valid or doesn't match the id we've
-                // requested details for then just throw an exception
-                throw new \InvalidArgumentException('Character ID not recognized or does not match.');
-            }
-            $character->id = $id;
-
-            // Avatar
-            $character->avatar = $entry->filter('.frame__chara__face img')->attr('src');
-
-            // Name
-            $character->name = trim($entry->filter('.frame__chara__name')->text());
-
-            // World
-            $character->world = trim($entry->filter('.frame__chara__world')->text());
-
-            // Portrait
-            $character->portrait = $entry->filter('.character__view .character__detail__image img')->attr('src');
-
-            // Introduction
-            $character->introduction = trim($entry->filter('.character__selfintroduction')->text());
-
-            // Title
-            $title = $entry->filter('.frame__chara__title');
-            if ($title->count()) {
-                $character->title = trim($title->text());
-            }
-
-            // Profile blocks
-            $entry->filter('.character__profile__data__detail .character-block__title')->each(function (Crawler $node) use (&$character) {
-                switch (trim($node->text())) {
-                    // Race, Clan and Gender
-                    case 'Race/Clan/Gender':
-                        if (preg_match('/(.*)<br>(.*)\s+\/\s+(♂|♀)/', $node->nextAll()->html(), $matches)) {
-                            $character->race = trim($matches[1]);
-                            $character->clan = trim($matches[2]);
-                            $character->gender = (trim($matches[3]) == '♂') ? 'Male' : 'Female';
-                        }
-                        break;
-                    // Nameday
-                    case 'Nameday':
-                        $character->nameday = trim($node->nextAll()->text());
-                        break;
-                    // Guardian
-                    case 'Guardian':
-                        $character->guardian = trim($node->nextAll()->text());
-                        break;
-                    // City-state
-                    case 'City-state':
-                        $character->city_state = trim($node->nextAll()->text());
-                        break;
-                    // Grand Company (optional)
-                    case 'Grand Company':
-                        if (preg_match('/(.*)\/(.*)/', $node->nextAll()->text(), $matches)) {
-                            $character->grand_company = [
-                                'name' => trim($matches[1]),
-                                'rank' => trim($matches[2])
-                            ];
-                        }
-                        break;
-                }
-            });
-
-            // Free Company (optional)
-            $fc = $entry->filter('.character__freecompany__name');
-            if ($fc->count() && preg_match('/\/(\d+)\/$/', $fc->filter('a')->attr('href'), $matches)) {
-                $character->free_company = [
-                    'id' => trim($matches[1]),
-                    'crest' => $entry->filter('.character__freecompany__crest__image img')->each(function (Crawler $node) {
-                        return $node->attr('src');
-                    }),
-                    'name' => trim($fc->filter('a')->text())
-                ];
-            }
-
-            // Active Class/Job - we can get the active class from the
-            // equipped main hand (slot 0) and we can tell if it's an
-            // actual job from an equipped soul crystal (slot 12)
-            $character->active_class = trim(explode('\'', $entry->filter('.db-tooltip__item__category')->eq(0)->text())[0]);
-            $soul = $entry->filter('.db-tooltip__item__name')->eq(12);
-            if ($soul->count() && preg_match('/Soul of the (\w+)/', $soul->text(), $matches)) {
-                $character->active_class = trim($matches[1]);
-            }
-
-            // All class levels, with current and max xp
-            $character->classes = [];
-            $entry->filter('.character__job li')->each(function (Crawler $node) use (&$character) {
-                $name = trim($node->filter('.character__job__name')->text());
-                $level = trim($node->filter('.character__job__level')->text());
-                list($current, $max) = explode('/', $node->filter('.character__job__exp')->text());
-                $character->classes[strtolower($name)] = [
-                    'name' => $name,
-                    'level' => intval($level),
-                    'exp' => [
-                        'current' => intval($current),
-                        'max' => intval($max)
-                    ]
-                ];
-            });
-        } catch (\Exception $e) {
-            // TODO: Error handling
+        if (!$crawler->count()) {
+            return false;
         }
 
-        return $character;
+        $entry = $crawler->eq(0);
+
+        $c = new Character();
+
+        // ID
+        $node = $entry->filter('.frame__chara .frame__chara__link');
+        if (!$node->count() || !preg_match("/\/({$id})\/$/", $node->attr('href'), $matches)) {
+            // If the ID isn't valid or doesn't match the id we've
+            // requested details for then just throw an exception
+            throw new \InvalidArgumentException('Character ID not recognized or does not match.');
+        }
+        $c->id = $id;
+
+        foreach ($node->children() as $node) {
+            switch($node->getAttribute('class')) {
+                // Avatar
+                case 'frame__chara__face':
+                    try {
+                        $c->avatar = (new Crawler($node))->filter('img')->attr('src');
+                    } catch (\Exception $e) {
+                    }
+                    break;
+
+                // name/title/world
+                case 'frame__chara__box':
+                    foreach ((new Crawler($node))->children() as $node) {
+                        switch($node->getAttribute('class')) {
+                            // Name
+                            case 'frame__chara__name':
+                                $c->name = $node->textContent;
+                                break;
+
+                            // Title
+                            case 'frame__chara__title':
+                                $c->title = $node->textContent;
+                                break;
+
+                            // World
+                            case 'frame__chara__world':
+                                $c->world = $node->textContent;
+                                break;
+                        }
+                    }
+                    break;
+            }
+        }
+
+        foreach ($entry->filter('.character__content') as $entry) {
+            // Each block of character data consists of:
+            //    <h3 class="heading--md">{title}<h3>
+            //    <div class="clearfix">{block data}</div>
+            //    ...
+
+            $entry = new Crawler($entry);
+
+            // first child should be the title
+            $title = $entry->children()->eq(0);
+            if (!$title || $title->nodeName() != 'h3') {
+                continue;
+            }
+
+            switch ($title->text()) {
+                // profile blocks
+                case 'Profile':
+                    foreach ($entry->filter('.character-block__box .character-block__title') as $node) {
+                        $next = (new Crawler($node))->nextAll();
+                        if ($next->count()) {
+                            switch ($node->textContent) {
+                                // Race/Clan/Gender
+                                case 'Race/Clan/Gender':
+                                    if (preg_match('/(.*)<br>(.*)\s+\/\s+(♂|♀)/', $next->html(), $matches)) {
+                                        $c->race = trim($matches[1]);
+                                        $c->clan = trim($matches[2]);
+                                        $c->gender = (trim($matches[3]) == '♂') ? 'Male' : 'Female';
+                                    }
+                                    break;
+
+                                // Nameday
+                                case 'Nameday':
+                                    $c->nameday = trim($next->text());
+                                    break;
+
+                                // Guardian
+                                case 'Guardian':
+                                    $c->guardian = trim($next->text());
+                                    break;
+
+                                // City-state
+                                case 'City-state':
+                                    $c->citystate = trim($next->text());
+                                    break;
+
+                                // Grand Company (optional)
+                                case 'Grand Company':
+                                    try {
+                                        $gc = explode('/', $next->text());
+                                        $c->grandcompany = [
+                                            'name' => trim($gc[0]),
+                                            'rank' => trim($gc[1])
+                                        ];
+                                    } catch (\Exception $e) {
+                                    }
+                                    break;
+                            }
+                        }
+                    }
+
+                    // Free Company (optional)
+                    try {
+                        $fc = $entry->filter('.character__freecompany__name h4 a');
+                        if ($fc->count() && preg_match('/\/(\d+)\/$/', $fc->attr('href'), $matches)) {
+                            $c->freecompany = [
+                                'id' => trim($matches[1]),
+                                'crest' => $entry->filter('.character__freecompany__crest__image img')->each(function (Crawler $node) {
+                                    return trim($node->attr('src'));
+                                }),
+                                'name' => trim($fc->text())
+                            ];
+                        }
+                    } catch (\Exception $e) {
+                    }
+
+                    $detail = $entry->filter('.character__view');
+                    if ($detail->count()) {
+                        foreach ($detail->children() as $node) {
+                            switch ($node->getAttribute('class')) {
+                                // Active Class
+                                case 'character__class':
+                                    try {
+                                        $node = (new Crawler($node))->filter('.character__class__arms .db-tooltip__item__category');
+                                        $c->activeclass = trim(explode('\'', $node->text())[0]);
+                                    } catch (\Exception $e) {
+                                    }
+                                    break;
+
+                                case 'character__detail':
+                                    // update active class with info from soul if equipped
+                                    $soul = (new Crawler($node))->filter('.icon-c--13 .db-tooltip__item__name');
+                                    if ($soul->count() && preg_match('/Soul of the (\w+)/', $soul->text(), $matches)) {
+                                        $c->activeclass = trim($matches[1]);
+                                    }
+
+                                    // Portrait
+                                    $node = (new Crawler($node))->filter('.character__detail__image a');
+                                    $c->portrait = $node->count() ? $node->attr('href') : '';
+                                    break;
+                            }
+                        }
+                    }
+
+                    // Introduction
+                    $node = $entry->filter('div.character__selfintroduction');
+                    $c->introduction = $node->count() ? trim($node->text()) : '';
+                    break;
+
+                // attributes
+                case 'Attributes':
+                    // ignore for now
+                    break;
+
+                // classes
+                case 'DoW/DoM':
+                case 'DoH/DoL':
+                    foreach ($entry->filter('.character__job__role .character__job li') as $node) {
+                        $class = [];
+                        foreach ($node->childNodes as $node) {
+                            switch($node->getAttribute('class')) {
+                                // Name
+                                case 'character__job__name js__tooltip':
+                                case 'character__job__name character__job__name--meister js__tooltip':
+                                    $class['name'] = trim($node->textContent);
+                                    break;
+                                // Level
+                                case 'character__job__level':
+                                    $class['level'] = trim($node->textContent);
+                                    break;
+                                // Exp
+                                case 'character__job__exp':
+                                    list($current, $max) = explode('/', $node->textContent);
+                                    $class['exp'] = [
+                                        'current' => intval($current),
+                                        'max' => intval($max)
+                                    ];
+                                    break;
+                            }
+                        }
+                        if (isset($class['name'])) {
+                            $c->classes[strtolower($class['name'])] = $class;
+                        }
+                    }
+                    break;
+
+                // ignore for now
+                case 'Mounts':
+                case 'Minions':
+                    break;
+            }
+        }
+
+        return $c;
     }
 
     /**
@@ -275,10 +431,18 @@ class API
      *
      * @return Collection|false
      */
-    public function findFreeCompanies(String $name, String $worldname)
+    public function findFreeCompanies(String $name, String $worldname=null, $page=null)
     {
-        $crawler = $this->getCrawler("freecompany/?q={$name}&worldname={$worldname}");
+        // Get the crawler for the free company search results
+        $name = urlencode($name);
+        $worldname = urlencode($worldname);
+        $page = urlencode($page);
 
+        $crawler = $this->getCrawler(
+            "freecompany/?q={$name}&worldname={$worldname}&page={$page}"
+        );
+
+        // Find the lodestone window element
         $crawler = $crawler->filter('.ldst__contents .ldst__window');
 
         if (!$crawler->count()) {
@@ -287,41 +451,84 @@ class API
 
         $results = [];
 
-        foreach ($crawler->filter('.entry') as $domElement) {
+        // Get the list of freecompanies that have been returned by
+        // the lodestone api, with each character being found in an
+        // anchor with class="entry__block"
+        foreach ($crawler->filter('.entry__block') as $entry) {
             try {
-                $entry = new Crawler($domElement);
-
-                $fc = new FreeCompany();
+                $fc = new FreeCompanyListing();
 
                 // ID
-                $href = $entry->filter('.entry__block');
-                if (!$href->count() || !preg_match('/\/(\d+)\/$/', $href->attr('href'), $matches)) {
+                if (!preg_match('/\/(\d+)\/$/', $entry->getAttribute('href'), $matches)) {
                     // If an invalid free company id then just throw
                     // an exception and get out of here
                     throw new \InvalidArgumentException('Free Company ID not recognized.');
                 }
-                $fc->id = trim($matches[1]);
+                $fc->id = $matches[1];
 
-                // Crest - made up of 3 overlaid images
-                $fc->crest = $entry->filter('.entry__freecompany__crest__image img')->each(function (Crawler $node) {
-                    return $node->attr('src');
-                });
+                // $entry = new Crawler($entry);
+                foreach ($entry->childNodes as $node) {
+                    switch ($node->getAttribute('class')) {
+                        case 'entry__freecompany__inner':
+                            foreach ($node->childNodes as $node) {
+                                switch ($node->getAttribute('class')) {
+                                    // Crest
+                                    case 'entry__freecompany__crest':
+                                        $fc->crest = (new Crawler($node))->filter('.entry__freecompany__crest__image img')->each(function (Crawler $node) {
+                                            return $node->attr('src');
+                                        });
+                                        break;
 
-                // Name
-                $fc->name = trim($entry->filter('.entry__name')->text());
+                                    // name/world/gc
+                                    case 'entry__freecompany__box':
+                                        foreach ($node->childNodes as $node) {
+                                            switch ($node->getAttribute('class')) {
+                                                // Name
+                                                case 'entry__name':
+                                                    $fc->name = $node->textContent;
+                                                    break;
 
-                // World
-                $fc->world = trim($entry->filter('.entry__world')->eq(1)->text());
+                                                // World
+                                                case 'entry__world':
+                                                    // first entry is gc, second is world
+                                                    if (empty($f->grandcompany)) {
+                                                        $fc->grandcompany = $node->textContent;
+                                                    } else {
+                                                        $fc->world = $node->textContent;
+                                                    }
+                                                    break;
+                                            }
+                                        }
+                                        break;
+                                }
+                            }
+                            break;
 
-                // Grand Company
-                $fc->grand_company = trim($entry->filter('.entry__world')->eq(0)->text());
+                        // members/estate/dateformed
+                        case 'entry__freecompany__fc-data clearix':
+                            foreach ($node->childNodes as $node) {
+                                switch ($node->getAttribute('class')) {
+                                    // Active members
+                                    case 'entry__freecompany__fc-member':
+                                        $fc->activemembers = $node->textContent;
+                                        break;
 
-                // Active Members
-                $fc->active_members = intval($entry->filter('.entry__freecompany__fc-member')->text());
+                                    // Estate
+                                    case 'entry__freecompany__fc-housing':
+                                        $fc->estate = $node->textContent;
+                                        break;
 
-                // Date Formed
-                preg_match('/ldst_strftime\((\d+),/', $entry->filter('.entry__freecompany__fc-day')->text(), $matches);
-                $fc->date_formed = isset($matches[1]) ? $matches[1] : 'n/a';
+                                    // Date formed
+                                    case 'entry__freecompany__fc-day':
+                                        if (preg_match('/ldst_strftime\((\d+),/', $node->textContent, $matches)) {
+                                            $fc->dateformed = isset($matches[1]) ? $matches[1] : 'n/a';
+                                        }
+                                        break;
+                                }
+                            }
+                            break;
+                    }
+                }
 
                 $results[] = $fc;
             } catch (\Exception $e) {
@@ -329,7 +536,15 @@ class API
             }
         }
 
-        return count($results) ? collect($results) : false;
+        // Return results or an empty array if no matches found
+        if (!empty($results)) {
+            // TODO: add pager info
+            return [
+                'count' => count($results),
+                'results' => $results
+            ];
+        }
+        return [];
     }
 
     /**
@@ -344,15 +559,16 @@ class API
     {
         $crawler = $this->getCrawler("freecompany/{$id}");
 
+        // Find the lodestone window elements
         $crawler = $crawler->filter('.ldst__contents .ldst__window');
 
         if (!$crawler->count()) {
             return false;
         }
 
-        // Free companies have two .ldst__window sections,
-        // the first containing company information and the
-        // second containing company activity/focus.
+        // Free companies have two .ldst__window sections, the first
+        // containing company information and the second containing
+        // company activity/focus.
         $entry = $crawler->eq(0);
 
         if (!$entry->count()) {
@@ -361,113 +577,129 @@ class API
 
         $fc = new FreeCompany();
 
-        try {
-            // ID
-            $href = $entry->filter('.entry__freecompany');
-            if (!$href->count() || !preg_match("/\/({$id})\/$/", $href->attr('href'), $matches)) {
-                // If the ID isn't valid or doesn't match the id we've
-                // requested details for then throw an exception
-                throw new \InvalidArgumentException('Free Company ID not recognized or does not match.');
-            }
-            $fc->id = $id;
+        // ID
+        $node = $entry->filter('.entry .entry__freecompany');
+        if (!$node->count() || !preg_match("/\/({$id})\/$/", $node->attr('href'), $matches)) {
+            // If the ID isn't valid or doesn't match the id we've
+            // requested details for then throw an exception
+            throw new \InvalidArgumentException('Free Company ID not recognized or does not match.');
+        }
+        $fc->id = $id;
 
-            // Crest - made up of 3 overlaid images
-            $fc->crest = $entry->filter('.entry__freecompany__crest__image img')->each(function (Crawler $node) {
+        // Crest
+        try {
+            $fc->crest = $node->filter('.entry__freecompany__crest .entry__freecompany__crest__image img')->each(function (Crawler $node) {
                 return $node->attr('src');
             });
+        } catch (\Exception $e) {
+        }
 
-            // Name
-            $fc->name = trim($entry->filter('.freecompany__text__name')->text());
-
-            // World
-            $fc->world = trim($entry->filter('.entry__freecompany__gc')->eq(1)->text());
-
-            // Grand Company
-            $gc = $entry->filter('.entry__freecompany__gc')->eq(0);
-            if ($gc->count() && preg_match('/^([A-Z][A-Za-z ]+)\s+</', $gc->text(), $matches)) {
-                $fc->grand_company = $matches[1];
-            }
-
-            // Profile blocks
-            $entry->filter('.heading--lead')->each(function (Crawler $node) use (&$fc) {
-                switch (trim($node->text())) {
-                    // Company Slogan
-                    case 'Company Slogan':
-                        $fc->slogan = trim($node->nextAll()->text());
+        // name/world/gc
+        $node = $node->filter('.entry__freecompany__box');
+        if ($node->count()) {
+            foreach ($node->children() as $node) {
+                switch ($node->getAttribute('class')) {
+                    // Name
+                    case 'entry__freecompany__name':
+                        $fc->name = $node->textContent;
                         break;
-                    // Date formed - timestamp grabbed from a call to
-                    // a javascript function ldst_strftime()
-                    case 'Formed':
-                        preg_match('/ldst_strftime\((\d+),/', $node->nextAll()->text(), $matches);
-                        $fc->date_formed = isset($matches[1]) ?  intval($matches[1]) : 'n/a';
-                        break;
-                    // Number of members
-                    case 'Active Members':
-                        $fc->active_members = intval($node->nextAll()->text());
-                        break;
-                    // Rank
-                    case 'Rank':
-                        $fc->rank = intval($node->nextAll()->text());
+
+                    // gc/world
+                    case 'entry__freecompany__gc':
+                        if (empty($f->grandcompany)) {
+                            preg_match('/^([A-Z][A-Za-z ]+)\s+</', $node->textContent, $matches);
+                            $fc->grandcompany = isset($matches[1]) ? $matches[1] : 'n/a';
+                        } else {
+                            $fc->world = trim($node->textContent);
+                        }
                         break;
                 }
-            });
+            }
+        }
 
-            // Company Tag - between « and »
-            $fc->tag = trim(str_replace(['«','»'], '', $entry->filter('.freecompany__text.freecompany__text__tag')->text()));
+        // Tag
+        $node = $entry->filter('p.freecompany__text.freecompany__text__tag');
+        $fc->tag = $node->count() ? trim(str_replace(['«','»'], '', $node->text())) : '';
 
-            // Reputation/Standing
-            $fc->standing = [];
-            $entry->filter('.freecompany__reputation .freecompany__reputation__gcname')->each(function (Crawler $node) use (&$fc) {
-                $name = trim($node->text());
-                $standing = trim($node->nextAll()->text());
-                $fc->standing[$name] = $standing;
-            });
-
-            // Estate Profile
-            $fc->estate = [
-                'name' => trim($entry->filter('.freecompany__estate__name')->text()),
-                'address' => trim($entry->filter('.freecompany__estate__text')->text()),
-                'greeting' => trim($entry->filter('.freecompany__estate__greeting')->text())
-            ];
-
-            // We now need to process the second .ldst__window section
-            // for the company focus and activity.
-            $entry = $crawler->eq(1);
-
-            if ($entry->count()) {
-                // Activity and Recruitment
-                $entry->filter('.heading--lead')->each(function (Crawler $node) use (&$fc) {
+        $nodes = $entry->filter('h3.heading--lead');
+        if ($nodes->count()) {
+            $nodes->each(function (Crawler $node) use (&$f) {
+                $next = $node->nextAll();
+                if ($next->count()) {
                     switch (trim($node->text())) {
-                        case 'Active':
-                            $fc->active = trim($node->nextAll()->text());
+                        // Company slogan
+                        case 'Company Slogan':
+                            $fc->slogan = trim($next->text());
                             break;
-                        case 'Recruitment':
-                            $fc->recruitment = trim($node->nextAll()->text());
+
+                        // Date formed
+                        case 'Formed':
+                            preg_match('/ldst_strftime\((\d+),/', $next->text(), $matches);
+                            $fc->dateformed = isset($matches[1]) ?  intval($matches[1]) : 'n/a';
+                            break;
+
+                        // Acive members
+                        case 'Active Members':
+                            $fc->activemembers = intval($next->text());
+                            break;
+
+                        // Rank
+                        case 'Rank':
+                            $fc->rank = intval($next->text());
                             break;
                     }
-                });
+                }
+            });
+        }
 
-                // Details on company focus and seeking are found in
-                // two icon lists, the first for focus and second for
-                // seeking. In both instances the focus_icon--off class
-                // is used to determine if that option is on or off.
-                $focus = $entry->filter('ul.freecompany__focus_icon');
+        // Standing
+        $entry->filter('.freecompany__reputation .freecompany__reputation__gcname')->each(function (Crawler $node) use (&$f) {
+            $next = $node->nextAll();
+            $fc->standing[$node->text()] = $next->count() ? $next->text() : 'n/a';
+        });
 
-                // Focus
-                $fc->focus = [];
-                $focus->eq(0)->filter('li')->each(function(Crawler $node) use (&$fc) {
-                    $fc->focus[strtolower(trim($node->filter('p')->text()))] = !in_array('freecompany__focus_icon--off', $node->extract('class'));
-                });
+        // Estate Profile
+        $estate = $entry->filter('.freecompany__estate__name');
+        $fc->estate['name'] = $estate->count() ? $estate->text() : '';
+        $estate = $entry->filter('.freecompany__estate__text');
+        $fc->estate['address'] = $estate->count() ? $estate->text() : '';
+        $estate = $entry->filter('.freecompany__estate__greeting');
+        $fc->estate['greeting'] = $estate->count() ? $estate->text() : '';
 
-                // Seeking
-                $fc->seeking = [];
-                $focus->eq(1)->filter('li')->each(function(Crawler $node) use (&$fc) {
-                    $fc->seeking[strtolower(trim($node->filter('p')->text()))] = !in_array('freecompany__focus_icon--off', $node->extract('class'));
-                });
-            }
-        } catch (\Exception $e) {
-            // TODO: Error handling
-            return false;
+        // Now process the second lodestone section
+        $entry = $crawler->eq(1);
+
+        if ($entry->count()) {
+            $entry->filter('h3.heading--lead')->each(function (Crawler $node) use (&$f) {
+                $next = $node->nextAll();
+                if ($next->count()) {
+                    switch (trim($node->text())) {
+                        // Active
+                        case 'Active':
+                            $fc->active = trim($next->text());
+                            break;
+
+                        // Recruitment
+                        case 'Recruitment':
+                            $fc->recruitment = trim($next->text());
+                            break;
+
+                        // Focus
+                        case 'Focus':
+                            foreach ($next->children() as $focus) {
+                                $fc->focus[trim($focus->textContent)] =  strpos($focus->getAttribute('class'), 'freecompany__focus_icon--off') === false;
+                            }
+                            break;
+
+                        // Seeking
+                        case 'Seeking':
+                            foreach ($next->children() as $seeking) {
+                                $fc->seeking[trim($seeking->textContent)] =  strpos($seeking->getAttribute('class'), 'freecompany__focus_icon--off') === false;
+                            }
+                            break;
+                    }
+                }
+            });
         }
 
         return $fc;
@@ -510,44 +742,57 @@ class API
             }
 
             // Process the member list on the current page
-            foreach ($crawler->filter('li.entry') as $domElement) {
+            foreach ($crawler->filter('li.entry .entry__bg') as $entry) {
                 try {
-                    $entry = new Crawler($domElement);
-
-                    $member = new FreeCompanyMember();
+                    $m = new FreeCompanyMember();
 
                     // ID
-                    $href = $entry->filter('.entry__bg');
-                    if (!$href->count() || !preg_match("/\/(\d+)\/$/", $href->attr('href'), $matches)) {
-                        // If the ID isn't valid or doesn't match the id we've
-                        // requested details for then throw an exception
+                    if (!preg_match("/\/(\d+)\/$/", $entry->getAttribute('href'), $matches)) {
                         throw new \InvalidArgumentException('Character ID for the free company member not recognized.');
                     }
-                    $member->id = trim($matches[1]);
+                    $m->id = trim($matches[1]);
 
-                    // Name
-                    $member->name = trim($entry->filter('.entry__name')->text());
+                    $entry = new Crawler($entry);
+                    foreach ($entry->filter('.entry__freecompany__center')->children() as $node) {
+                        switch ($node->getAttribute('class')) {
+                            // Name
+                            case 'entry__name':
+                                $m->name = $node->textContent;
+                                break;
 
-                    // Free Company
-                    $member->rank = trim($entry->filter('.entry__freecompany__info li span')->text());
+                            // Rank
+                            case 'entry__freecompany__info':
+                                try {
+                                    $m->rank = (new Crawler($node))->filter('li span')->text();
+                                } catch (\Exception $e) {
+                                }
+                                break;
+                        }
+                    }
 
-                    $results[] = $member;
+                    $results[] = $m;
                 } catch (\Exception $e) {
-                    // TODO: Error handling
+                    // TODO: Error handling - just skip to next for now
                 }
             }
 
-            // Attempt to get the current page of pages and
-            // continue the loop with the next page if we
-            // haven't just processed the last page
-            if (preg_match('/Page\s*(\d+)\s*of\s*(\d+)/', $crawler->filter('.btn__pager__current')->text(), $matches)) {
-                $page = intval($matches[1]);
-                $pages = intval($matches[2]);
-            } else {
-                break;
+            // Attempt to get the current page of pages and continue the
+            // loop until we've processed the last page
+            try {
+                $pager = $crawler->filter('.btn__pager__current');
+                list($page, $pages) = explode(' of ', $pager->text());
+            } catch (\Except $e) {
+                $pages = $page;
             }
         } while (++$page <= $pages);
 
-        return count($results) ? collect($results) : false;
+        // Return the results
+        if (!empty($results)) {
+            return [
+                'count' => count($results),
+                'results' => $results
+            ];
+        }
+        return [];
     }
 }

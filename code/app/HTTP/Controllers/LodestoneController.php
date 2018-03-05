@@ -20,74 +20,78 @@ class LodestoneController extends Controller
         $this->lodestone = $lodestone;
     }
 
-    public function getCharacter(Request $request)
-    {
-        $lodestone = $this->lodestone->getCharacter($request->id);
-
-        if (!$lodestone) {
-            abort(404);
-        }
-
-        return $lodestone;
-    }
-
     public function findCharacters(Request $request)
     {
         $this->validate($request, [
             'name' => 'required|string',
-            'world_id' => 'sometimes|exists:worlds,id'
+            'worldname' => 'sometimes|exists:worlds,name',
+            'page' => 'sometimes|int',
         ]);
 
-        $lodestone = $this->lodestone->findCharacters(
+        $results = $this->lodestone->findCharacters(
             $request->name,
-            $request->world_id ? World::find($request->world_id)->name : ''
+            $request->worldname,
+            $request->page
         );
 
-        if (!$lodestone) {
+        if (!$results) {
             abort(404);
         }
 
-        return $lodestone;
+        return $results;
     }
 
-    public function getFreeCompany(Request $request)
+    public function getCharacter(Request $request)
     {
-        $lodestone = $this->lodestone->getFreeCompany($request->id);
+        $character = $this->lodestone->getCharacter($request->id);
 
-        if (!$lodestone) {
-             abort(404);
-        }
-
-        return $lodestone;
-    }
-
-    public function getFreeCompanyMembers(Request $request)
-    {
-        $lodestone = $this->lodestone->getFreeCompanyMembers($request->id);
-
-        if (!$lodestone) {
+        if (!$character) {
             abort(404);
         }
 
-        return $lodestone;
+        return $character;
     }
 
     public function findFreeCompanies(Request $request)
     {
         $this->validate($request, [
             'name' => 'required|string',
-            'world_id' => 'sometimes|exists:worlds,id'
+            'worldname' => 'sometimes|exists:worlds,name',
+            'page' => 'sometimes|int',
         ]);
 
-        $lodestone = $this->lodestone->findFreeCompanies(
+        $results = $this->lodestone->findFreeCompanies(
             $request->name,
-            $request->world_id ? World::find($request->world_id)->name : ''
+            $request->worldname,
+            $request->page
         );
 
-        if (!$lodestone) {
+        if (!$results) {
             abort(404);
         }
 
-        return $lodestone;
+        return $results;
+    }
+
+    public function getFreeCompany(Request $request)
+    {
+        $freecompany = $this->lodestone->getFreeCompany($request->id);
+
+        if (!$freecompany) {
+             abort(404);
+        }
+
+        return $freecompany;
+    }
+
+    public function getFreeCompanyMembers(Request $request)
+    {
+        $results = $this->lodestone->getFreeCompanyMembers($request->id);
+
+        if (!$results) {
+            abort(404);
+        }
+
+        return $results;
     }
 }
